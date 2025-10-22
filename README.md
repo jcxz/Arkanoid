@@ -1,0 +1,1 @@
+To build the project run setup.bat For it to work you need to have conan, cmake and visual studio (or similar on MacOS/Linux) installed.
