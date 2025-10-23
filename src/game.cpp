@@ -1,8 +1,8 @@
 #include "game.h"
+#include "core/logger.h"
 #include "imgui.h"
 #include "../external/imgui_impl_sdl3.h"
 #include "../external/imgui_impl_sdlrenderer3.h"
-#include <spdlog/spdlog.h>
 
 
 
@@ -12,42 +12,23 @@ static bool rectsIntersect(const SDL_FRect& a, const SDL_FRect& b)
 }
 
 
-Game::~Game()
+void Game::Terminate()
 {
 	ImGui_ImplSDLRenderer3_Shutdown();
 	ImGui_ImplSDL3_Shutdown();
-	ImGui::DestroyContext();
 	if (renderer) SDL_DestroyRenderer(renderer);
 	if (window) SDL_DestroyWindow(window);
-	SDL_Quit();
 }
 
 bool Game::init()
 {
-	if (!SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO))
-	{
-		spdlog::error("SDL_Init error: {}", SDL_GetError());
-		return false;
-	}
-
 	window = SDL_CreateWindow("Arkanoid - SDL2", windowW, windowH, SDL_WINDOW_RESIZABLE);
 	renderer = SDL_CreateRenderer(window, nullptr);
 	if (!window || !renderer)
 	{
-		spdlog::error("CreateWindow/Renderer error: {}", SDL_GetError());
+		ARK_ERROR("CreateWindow/Renderer error: {}", SDL_GetError());
 		return false;
 	}
-
-	// Setup Dear ImGui context
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsLight();
 
 	// Setup Platform/Renderer backends
 	ImGui_ImplSDL3_InitForSDLRenderer(window, renderer);

@@ -11,9 +11,9 @@
 class Game
 {
 public:
-	~Game();
 	bool init();
 	void run();
+	void Terminate();
 
 private:
 	void processInput();

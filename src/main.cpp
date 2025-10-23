@@ -1,15 +1,48 @@
-#include <spdlog/spdlog.h>
+#include "core/logger.h"
 #include "game.h"
+#include "imgui.h"
 
 
 
 int main(int argc, char* argv[])
 {
-	Game g;
-	if (!g.init()) {
-		spdlog::error("Failed to initialize game");
+	// initialize global stuff
+	if (!ark::InitLogger("arkanoid.log", "arkanoid"))
+		return 1;
+
+	if (!SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO))
+	{
+		ARK_ERROR("SDL_Init error: {}", SDL_GetError());
+		ark::CloseLogger();
 		return 1;
 	}
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	//ImGui::StyleColorsDark();
+
+	Game g;
+	if (!g.init())
+	{
+		ARK_ERROR("Failed to initialize the game");
+		ImGui::DestroyContext();
+		SDL_Quit();
+		ark::CloseLogger();
+		return 1;
+	}
+
+	// main loop
 	g.run();
+
+	// terminate global stuff
+	g.Terminate();
+
+	ImGui::DestroyContext();
+
+	SDL_Quit();
+
+	ark::CloseLogger();
+
 	return 0;
 }

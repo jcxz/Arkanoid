@@ -10,10 +10,38 @@ find_package(imgui REQUIRED)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# platform detection
+if(EMSCRIPTEN)
+	set(TARGET_WASM ON)
+	add_compile_definitions(ARK_OS_WASM)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	set(TARGET_WINDOWS ON)
+	add_compile_definitions(ARK_OS_WIN)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+	set(TARGET_ANDROID ON)
+	add_compile_definitions(ARK_OS_ANDROID)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	set(TARGET_LINUX ON)
+	add_compile_definitions(ARK_OS_LINUX)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	set(TARGET_MACOS ON)
+	add_compile_definitions(ARK_OS_MACOS)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+	set(TARGET_IOS ON)
+	add_compile_definitions(ARK_OS_IOS)
+elseif (${CMAKE_SYSTEM_NAME} STREQUAL "tvOS")
+	set(TARGET_TVOS ON)
+	add_compile_definitions(ARK_OS_TVOS)
+else()
+	message(FATAL_ERROR "Unsupported operating system ${CMAKE_SYSTEM_NAME}")
+endif()
+
 set(ARKANOID_HEADERS
 	external/imgui_impl_sdl3.h
 	external/imgui_impl_sdlrenderer3.h
 
+	src/core/common.h
+	src/core/logger.h
 	src/ball.h
 	src/brick.h
 	src/game.h
@@ -24,6 +52,7 @@ set(ARKANOID_SOURCES
 	external/imgui_impl_sdl3.cpp
 	external/imgui_impl_sdlrenderer3.cpp
 
+	src/core/logger.cpp
 	src/ball.cpp
 	src/brick.cpp
 	src/game.cpp
