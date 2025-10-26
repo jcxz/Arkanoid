@@ -5,7 +5,7 @@ from conan.tools.cmake import cmake_layout
 from conan.tools.files import copy
 
 
-class Arkanoid(ConanFile):
+class ArkanoidRecipe(ConanFile):
     name = "Arkanoid"
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeToolchain", "CMakeDeps"
@@ -18,8 +18,10 @@ class Arkanoid(ConanFile):
         self.requires("glm/1.0.1")
 
     def generate(self):
-        copy(self, "*sdl3*",    os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"), os.path.join(self.source_folder, "external"))
-        copy(self, "*opengl3*", os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"), os.path.join(self.source_folder, "external"))
+        bindings_src = os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings")
+        bindings_dst = os.path.join(self.build_folder, "external")
+        copy(self, "*sdl3*",    bindings_src, bindings_dst)
+        copy(self, "*opengl3*", bindings_src, bindings_dst)
 
     def layout(self):
         cmake_layout(self)

@@ -1,8 +1,8 @@
 #include "renderer/renderer.h"
 #include "renderer/ogl.h"
 #include "core/logger.h"
-#include "../external/imgui_impl_sdl3.h"
-#include "../external/imgui_impl_opengl3.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_opengl3.h"
 
 
 static std::string kCircleShaderVS = R"(

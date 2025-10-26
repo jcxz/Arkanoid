@@ -40,9 +40,6 @@ else()
 endif()
 
 set(ARKANOID_HEADERS
-	external/imgui_impl_sdl3.h
-	external/imgui_impl_opengl3.h
-
 	src/core/common.h
 	src/core/logger.h
 	src/core/maths.h
@@ -56,9 +53,6 @@ set(ARKANOID_HEADERS
 )
 
 set(ARKANOID_SOURCES
-	external/imgui_impl_sdl3.cpp
-	external/imgui_impl_opengl3.cpp
-
 	src/core/logger.cpp
 	src/renderer/ogl.cpp
 	src/renderer/renderer.cpp
@@ -70,11 +64,22 @@ set(ARKANOID_SOURCES
 	src/main.cpp
 )
 
-add_executable(Arkanoid ${ARKANOID_HEADERS} ${ARKANOID_SOURCES})
+set(ARKANOID_EXTERNAL_HEADERS
+	${CMAKE_BINARY_DIR}/external/imgui_impl_sdl3.h
+	${CMAKE_BINARY_DIR}/external/imgui_impl_opengl3.h
+)
+
+set(ARKANOID_EXTERNAL_SOURCES
+	${CMAKE_BINARY_DIR}/external/imgui_impl_sdl3.cpp
+	${CMAKE_BINARY_DIR}/external/imgui_impl_opengl3.cpp
+)
+
+add_executable(Arkanoid ${ARKANOID_HEADERS} ${ARKANOID_SOURCES} ${ARKANOID_EXTERNAL_HEADERS} ${ARKANOID_EXTERNAL_SOURCES}})
 
 target_link_libraries(Arkanoid PRIVATE SDL3::SDL3-static spdlog::spdlog GLEW::GLEW imgui::imgui glm::glm)
 
 target_include_directories(Arkanoid PRIVATE
+	"${CMAKE_BINARY_DIR}/external"
 	"src"
 	"src/core"
 	"src/renderer"
@@ -86,8 +91,8 @@ else()
 	target_compile_options(Arkanoid PRIVATE -Werror -Wall -Wextra -pedantic)
 endif()
 
-#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX Headers FILES ${ARKANOID_HEADERS})
-#source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX Sources FILES ${ARKANOID_SOURCES})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX Headers FILES ${ARKANOID_HEADERS})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX Sources FILES ${ARKANOID_SOURCES})
+source_group(TREE ${CMAKE_BINARY_DIR}/external PREFIX Headers/external FILES ${ARKANOID_EXTERNAL_HEADERS})
+source_group(TREE ${CMAKE_BINARY_DIR}/external PREFIX Sources/external FILES ${ARKANOID_EXTERNAL_SOURCES})
 
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX Headers FILES ${ARKANOID_HEADERS})
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} PREFIX Sources FILES ${ARKANOID_SOURCES})

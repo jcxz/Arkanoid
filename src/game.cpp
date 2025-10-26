@@ -2,8 +2,8 @@
 #include "core/logger.h"
 #include "renderer/ogl.h"
 #include "imgui.h"
-#include "../external/imgui_impl_sdl3.h"
-#include "../external/imgui_impl_opengl3.h"
+#include "imgui_impl_sdl3.h"
+#include "imgui_impl_opengl3.h"
 
 
 static bool rectsIntersect(const ark::Rect& a, const ark::Rect& b)
