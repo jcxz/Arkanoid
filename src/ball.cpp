@@ -26,7 +26,7 @@ namespace ark
 
 	void Ball::render(Renderer& renderer)
 	{
-		renderer.DrawCircle(glm::vec2(x, y), r, glm::vec4(0.75f, 0.75f, 0.75f, 1.0f));
+		renderer.DrawCircle(glm::vec2(x, y), r, glm::vec4(0.75f, 0.75f, 0.0f, 1.0f));
 	}
 
 	void Ball::setPosition(float nx, float ny) { x = nx; y = ny; }
