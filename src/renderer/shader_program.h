@@ -30,6 +30,9 @@ namespace ark
 	public:
 		~ShaderProgram();
 
+		ShaderProgram(const ShaderProgram&) = delete;
+		ShaderProgram& operator=(const ShaderProgram&) = delete;
+
 		const std::string& GetName() const { return mName; }
 
 		bool HasUniform(const std::string& name) const { return mUniforms.contains(name); }
