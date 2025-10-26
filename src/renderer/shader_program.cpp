@@ -59,7 +59,7 @@ namespace ark
 			return nullptr;
 		}
 
-		const unsigned int fsID = CompileShader(GL_FRAGMENT_SHADER, vertShaderSource, vertShaderName);
+		const unsigned int fsID = CompileShader(GL_FRAGMENT_SHADER, fragShaderSource, fragShaderName);
 		if (fsID == 0)
 		{
 			ARK_ERROR("Failed to compile fragment shader for program {}", name);
