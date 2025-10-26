@@ -9,6 +9,7 @@ find_package(imgui REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_WIN32_EXECUTABLE ON)   # we want a Windows GUI application, not a console one
 
 # platform detection
 if(EMSCRIPTEN)

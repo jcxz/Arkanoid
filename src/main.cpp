@@ -1,6 +1,7 @@
 #include "core/logger.h"
 #include "game.h"
 #include "imgui.h"
+#include <SDL3/SDL_main.h>
 
 
 
