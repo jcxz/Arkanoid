@@ -15,10 +15,11 @@ class Arkanoid(ConanFile):
         self.requires("spdlog/1.16.0")
         self.requires("imgui/1.92.4")
         self.requires("glew/2.2.0")
+        self.requires("glm/1.0.1")
 
     def generate(self):
-        copy(self, "*sdl3*",         os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"), os.path.join(self.source_folder, "external"))
-        copy(self, "*sdlrenderer3*", os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"), os.path.join(self.source_folder, "external"))
+        copy(self, "*sdl3*",    os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"), os.path.join(self.source_folder, "external"))
+        copy(self, "*opengl3*", os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"), os.path.join(self.source_folder, "external"))
 
     def layout(self):
         cmake_layout(self)

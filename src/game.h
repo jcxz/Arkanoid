@@ -11,20 +11,22 @@
 class Game
 {
 public:
-	bool init();
-	void run();
+	bool Init();
+	void Run();
 	void Terminate();
 
 private:
-	void processInput();
-	void update(float dt);
-	void render();
+	void HandleInput();
+	void HandleKeyboardEvent(const SDL_KeyboardEvent& event);
+	void Update(float dt);
+	void Render();
 	void resetBall();
 	void spawnLevel();
 
 private:
-	SDL_Window* window = nullptr;
+	SDL_Window* mpWindow = nullptr;
 	SDL_Renderer* renderer = nullptr;
+	SDL_GLContext gl_context = nullptr;
 
 	int windowW = 800;
 	int windowH = 600;

@@ -7,6 +7,7 @@ find_package(SDL3 REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(imgui REQUIRED)
 find_package(glew REQUIRED)
+find_package(glm REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -40,11 +41,13 @@ endif()
 
 set(ARKANOID_HEADERS
 	external/imgui_impl_sdl3.h
-	external/imgui_impl_sdlrenderer3.h
+	external/imgui_impl_opengl3.h
 
 	src/core/common.h
 	src/core/logger.h
+	src/core/maths.h
 	src/renderer/arkgl.h
+	src/renderer/shader_program.h
 	src/ball.h
 	src/brick.h
 	src/game.h
@@ -53,10 +56,11 @@ set(ARKANOID_HEADERS
 
 set(ARKANOID_SOURCES
 	external/imgui_impl_sdl3.cpp
-	external/imgui_impl_sdlrenderer3.cpp
+	external/imgui_impl_opengl3.cpp
 
 	src/core/logger.cpp
 	src/renderer/arkgl.cpp
+	src/renderer/shader_program.cpp
 	src/ball.cpp
 	src/brick.cpp
 	src/game.cpp
@@ -66,7 +70,7 @@ set(ARKANOID_SOURCES
 
 add_executable(Arkanoid ${ARKANOID_HEADERS} ${ARKANOID_SOURCES})
 
-target_link_libraries(Arkanoid PRIVATE SDL3::SDL3-static spdlog::spdlog GLEW::GLEW imgui::imgui)
+target_link_libraries(Arkanoid PRIVATE SDL3::SDL3-static spdlog::spdlog GLEW::GLEW imgui::imgui glm::glm)
 
 target_include_directories(Arkanoid PRIVATE
 	"src"

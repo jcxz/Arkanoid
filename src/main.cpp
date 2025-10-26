@@ -23,8 +23,8 @@ int main(int argc, char* argv[])
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	//ImGui::StyleColorsDark();
 
-	Game g;
-	if (!g.init())
+	Game game;
+	if (!game.Init())
 	{
 		ARK_ERROR("Failed to initialize the game");
 		ImGui::DestroyContext();
@@ -34,10 +34,10 @@ int main(int argc, char* argv[])
 	}
 
 	// main loop
-	g.run();
+	game.Run();
 
 	// terminate global stuff
-	g.Terminate();
+	game.Terminate();
 
 	ImGui::DestroyContext();
 
