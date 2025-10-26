@@ -133,6 +133,7 @@ namespace ark
 	{
 		glViewport(0, 0, w, h);
 		ARK_ASSERT_GL();
+		mProjection = glm::ortho(0.0f, static_cast<float>(w), static_cast<float>(h), 0.0f, -1.0f, 1.0f); // ortographic projection
 	}
 
 	void Renderer::BeginFrame()
