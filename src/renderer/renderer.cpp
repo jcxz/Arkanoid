@@ -187,7 +187,7 @@ namespace ark
 
 		// Setup ImGui backends
 		ImGui_ImplSDL3_InitForOpenGL(pRenderer->mpWindow, pRenderer->mpGLContext);
-		ImGui_ImplOpenGL3_Init(nullptr); // "#version 330 core");
+		ImGui_ImplOpenGL3_Init(nullptr);
 
 		// make a dummy VAO and bind it, because OpenGL 3.3 mandates one
 		glGenVertexArrays(1, &pRenderer->mVAO);

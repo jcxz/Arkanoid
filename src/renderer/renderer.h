@@ -31,7 +31,8 @@ namespace ark
 		{ }
 
 	private:
-		SDL_Window* mpWindow = nullptr;              // a non-owning reference to the window
+		// a non-owning reference to the window
+		SDL_Window* mpWindow = nullptr;
 		SDL_GLContext mpGLContext = nullptr;
 		unsigned int mVAO = 0;
 		glm::mat4 mProjection;
