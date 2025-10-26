@@ -1,4 +1,4 @@
-#include "paddle.h"
+#include "game/paddle.h"
 #include "renderer/renderer.h"
 #include <SDL3/SDL.h>
 

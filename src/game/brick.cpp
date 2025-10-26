@@ -1,4 +1,4 @@
-#include "brick.h"
+#include "game/brick.h"
 #include "renderer/renderer.h"
 
 

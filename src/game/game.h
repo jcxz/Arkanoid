@@ -1,9 +1,9 @@
 #pragma once
 
 #include "renderer/renderer.h"
-#include "paddle.h"
-#include "ball.h"
-#include "brick.h"
+#include "game/paddle.h"
+#include "game/ball.h"
+#include "game/brick.h"
 #include <SDL3/SDL.h>
 #include <vector>
 #include <memory>

@@ -43,24 +43,24 @@ set(ARKANOID_HEADERS
 	src/core/common.h
 	src/core/logger.h
 	src/core/maths.h
+	src/game/ball.h
+	src/game/brick.h
+	src/game/game.h
+	src/game/paddle.h
 	src/renderer/ogl.h
 	src/renderer/renderer.h
 	src/renderer/shader_program.h
-	src/ball.h
-	src/brick.h
-	src/game.h
-	src/paddle.h
 )
 
 set(ARKANOID_SOURCES
 	src/core/logger.cpp
+	src/game/ball.cpp
+	src/game/brick.cpp
+	src/game/game.cpp
+	src/game/paddle.cpp
 	src/renderer/ogl.cpp
 	src/renderer/renderer.cpp
 	src/renderer/shader_program.cpp
-	src/ball.cpp
-	src/brick.cpp
-	src/game.cpp
-	src/paddle.cpp
 	src/main.cpp
 )
 
@@ -80,9 +80,10 @@ target_link_libraries(Arkanoid PRIVATE SDL3::SDL3-static spdlog::spdlog GLEW::GL
 
 target_include_directories(Arkanoid PRIVATE
 	"${CMAKE_BINARY_DIR}/external"
-	"src"
-	"src/core"
-	"src/renderer"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/core"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/game"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/renderer"
 )
 
 if(MSVC)

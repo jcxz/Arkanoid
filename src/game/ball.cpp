@@ -1,4 +1,4 @@
-#include "ball.h"
+#include "game/ball.h"
 #include "renderer/renderer.h"
 
 
