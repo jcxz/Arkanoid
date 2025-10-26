@@ -1,5 +1,6 @@
 #pragma once
 
+#include "renderer/renderer.h"
 #include "paddle.h"
 #include "ball.h"
 #include "brick.h"
@@ -8,34 +9,40 @@
 #include <memory>
 
 
-class Game
+namespace ark
 {
-public:
-	bool Init();
-	void Run();
-	void Terminate();
+	class Game
+	{
+	public:
+		bool Init();
+		void Run();
+		void Terminate();
 
-private:
-	void HandleInput();
-	void HandleKeyboardEvent(const SDL_KeyboardEvent& event);
-	void Update(float dt);
-	void Render();
-	void resetBall();
-	void spawnLevel();
+	private:
+		void HandleInput();
+		void HandleKeyboardEvent(const SDL_KeyboardEvent& event);
+		void Update(float dt);
+		void Render();
+		void resetBall();
+		void spawnLevel();
 
-private:
-	SDL_Window* mpWindow = nullptr;
-	SDL_Renderer* renderer = nullptr;
-	SDL_GLContext gl_context = nullptr;
+	private:
+		SDL_Window* mpWindow = nullptr;
+		SDL_Renderer* renderer = nullptr;
+		SDL_GLContext gl_context = nullptr;
+		std::unique_ptr<Renderer> mpRenderer;
 
-	int windowW = 800;
-	int windowH = 600;
+		unsigned int mVAO = 0;
 
-	bool running = false;
-	std::unique_ptr<Paddle> paddle;
-	std::unique_ptr<Ball> ball;
-	std::vector<std::unique_ptr<Brick>> bricks;
+		int mWindowW = 800;
+		int mWindowH = 600;
 
-	int lives = 3;
-	int score = 0;
-};
+		bool running = false;
+		std::unique_ptr<Paddle> paddle;
+		std::unique_ptr<Ball> ball;
+		std::vector<std::unique_ptr<Brick>> bricks;
+
+		int lives = 3;
+		int score = 0;
+	};
+}

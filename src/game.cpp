@@ -6,288 +6,317 @@
 #include "../external/imgui_impl_opengl3.h"
 
 
-
-static bool rectsIntersect(const SDL_FRect& a, const SDL_FRect& b)
+static bool rectsIntersect(const ark::Rect& a, const ark::Rect& b)
 {
 	return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
 }
 
 
-bool Game::Init()
+namespace ark
 {
-	// GL 3.0 + GLSL 130
-	const char* glsl_version = "#version 130";
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-	//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	//SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-	mpWindow = SDL_CreateWindow("Arkanoid - SDL2", windowW, windowH, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
-	renderer = SDL_CreateRenderer(mpWindow, nullptr);
-	if (!mpWindow || !renderer)
+	bool Game::Init()
 	{
-		ARK_ERROR("CreateWindow/Renderer error: {}", SDL_GetError());
-		return false;
+		// GL 3.0 + GLSL 130
+		//const char* glsl_version = "#version 330 core";
+		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+		//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+		//SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+
+		mpWindow = SDL_CreateWindow("Arkanoid - SDL2", mWindowW, mWindowH, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+		if (mpWindow == nullptr)
+		{
+			ARK_ERROR("CreateWindow error: {}", SDL_GetError());
+			return false;
+		}
+#if 0
+		renderer = SDL_CreateRenderer(mpWindow, nullptr);
+		if (!mpWindow || !renderer)
+		{
+			ARK_ERROR("CreateWindow/Renderer error: {}", SDL_GetError());
+			return false;
+		}
+
+		gl_context = SDL_GL_CreateContext(mpWindow);
+		if (gl_context == nullptr)
+		{
+			ARK_ERROR("Error: SDL_GL_CreateContext(): {}", SDL_GetError());
+			return false;
+		}
+
+		const GLenum glewStatus = glewInit();
+		if (glewStatus != GLEW_OK)
+		{
+			ARK_ERROR("Failed to initialize glew: {}", (const char*)glewGetErrorString(glewStatus));
+			return false;
+		}
+
+		SDL_GL_MakeCurrent(mpWindow, gl_context);
+		//SDL_GL_SetSwapInterval(1); // Enable vsync
+		//SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+		//SDL_ShowWindow(window);
+
+		//InitGLDebugging();
+
+		// make a dummy VAO and bind it, because OpenGL 3.3 mandates one
+		glGenVertexArrays(1, &mVAO);
+		glBindVertexArray(mVAO);
+
+		// Setup Platform/Renderer backends
+		ImGui_ImplSDL3_InitForOpenGL(mpWindow, renderer);
+		ImGui_ImplOpenGL3_Init(glsl_version);
+#else
+		mpRenderer.reset(Renderer::Create(mpWindow));
+		mpRenderer->ResizeViewport(mWindowW, mWindowH);
+#endif
+		paddle = std::make_unique<Paddle>(mWindowW / 2 - 60, mWindowH - 40, 120, 16, mWindowW);
+		ball = std::make_unique<Ball>(mWindowW / 2.0f, mWindowH - 60.0f, 8.0f);
+		spawnLevel();
+		resetBall();
+		running = true;
+		return true;
 	}
 
-	gl_context = SDL_GL_CreateContext(mpWindow);
-	if (gl_context == nullptr)
+	void Game::Run()
 	{
-		ARK_ERROR("Error: SDL_GL_CreateContext(): {}", SDL_GetError());
-		return 1;
-	}
+		Uint64 last = SDL_GetPerformanceCounter();
+		while (running)
+		{
+			const Uint64 now = SDL_GetPerformanceCounter();
+			const float dt = float(now - last) / float(SDL_GetPerformanceFrequency());
+			last = now;
+			HandleInput();
 
-	const GLenum glewStatus = glewInit();
-	if (glewStatus != GLEW_OK)
-	{
-		ARK_ERROR("Failed to initialize glew: {}", (const char*) glewGetErrorString(glewStatus));
-		return false;
-	}
+			// Start the Dear ImGui frame
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplSDL3_NewFrame();
+			ImGui::NewFrame();
 
-	SDL_GL_MakeCurrent(mpWindow, gl_context);
-	//SDL_GL_SetSwapInterval(1); // Enable vsync
-	//SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-	//SDL_ShowWindow(window);
-
-	// Setup Platform/Renderer backends
-	ImGui_ImplSDL3_InitForOpenGL(mpWindow, renderer);
-	ImGui_ImplOpenGL3_Init(glsl_version);
-
-	paddle = std::make_unique<Paddle>(windowW/2 - 60, windowH - 40, 120, 16, windowW);
-	ball = std::make_unique<Ball>(windowW/2.0f, windowH - 60.0f, 8.0f);
-	spawnLevel();
-	resetBall();
-	running = true;
-	return true;
-}
-
-void Game::Run()
-{
-	Uint64 last = SDL_GetPerformanceCounter();
-	while (running)
-	{
-		const Uint64 now = SDL_GetPerformanceCounter();
-		const float dt = float(now - last) / float(SDL_GetPerformanceFrequency());
-		last = now;
-		HandleInput();
-
-		// Start the Dear ImGui frame
-		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplSDL3_NewFrame();
-		ImGui::NewFrame();
-
-		Update(dt);
-		Render();
-	}
-}
-
-void Game::Terminate()
-{
-	ImGui_ImplOpenGL3_Shutdown();
-	ImGui_ImplSDL3_Shutdown();
-	if (renderer) SDL_DestroyRenderer(renderer);
-	if (mpWindow) SDL_DestroyWindow(mpWindow);
-}
-
-void Game::spawnLevel()
-{
-	bricks.clear();
-	int rows = 5;
-	int cols = 10;
-	int bw = 64;
-	int bh = 24;
-	int startX = (windowW - cols*bw)/2;
-	int startY = 60;
-	for (int r=0;r<rows;r++){
-		for (int c=0;c<cols;c++){
-			BrickColor col = (r%3==0?BrickColor::Red: (r%3==1?BrickColor::Green:BrickColor::Blue));
-			int pts = (r%3==0?100: (r%3==1?50:30));
-			bricks.emplace_back(std::make_unique<Brick>(startX + c*bw, startY + r*bh, bw-4, bh-4, col, pts));
+			Update(dt);
+			Render();
 		}
 	}
-}
 
-void Game::resetBall()
-{
-	ball->launched = false;
-	ball->speed = 300.0f;
-	ball->setPosition(float(paddle->getRect().x + paddle->getRect().w/2), float(paddle->getRect().y - 12));
-	ball->vx = 0; ball->vy = 0;
-}
-
-void Game::HandleInput()
-{
-	SDL_Event event;
-	while (SDL_PollEvent(&event))
+	void Game::Terminate()
 	{
-		ImGui_ImplSDL3_ProcessEvent(&event);
-		switch (event.type)
+		//glDeleteVertexArrays(1, &mVAO);
+		//ImGui_ImplOpenGL3_Shutdown();
+		//ImGui_ImplSDL3_Shutdown();
+		//if (renderer) SDL_DestroyRenderer(renderer);
+		if (mpWindow) SDL_DestroyWindow(mpWindow);
+	}
+
+	void Game::spawnLevel()
+	{
+		bricks.clear();
+		int rows = 5;
+		int cols = 10;
+		int bw = 64;
+		int bh = 24;
+		int startX = (mWindowW - cols * bw) / 2;
+		int startY = 60;
+		for (int r = 0; r < rows; r++) {
+			for (int c = 0; c < cols; c++) {
+				BrickColor col = (r % 3 == 0 ? BrickColor::Red : (r % 3 == 1 ? BrickColor::Green : BrickColor::Blue));
+				int pts = (r % 3 == 0 ? 100 : (r % 3 == 1 ? 50 : 30));
+				bricks.emplace_back(std::make_unique<Brick>(startX + c * bw, startY + r * bh, bw - 4, bh - 4, col, pts));
+			}
+		}
+	}
+
+	void Game::resetBall()
+	{
+		ball->launched = false;
+		ball->speed = 300.0f;
+		ball->setPosition(float(paddle->getRect().x + paddle->getRect().w / 2), float(paddle->getRect().y - 12));
+		ball->vx = 0; ball->vy = 0;
+	}
+
+	void Game::HandleInput()
+	{
+		SDL_Event event;
+		while (SDL_PollEvent(&event))
 		{
-		case SDL_EVENT_QUIT:
-			running = false;
+			ImGui_ImplSDL3_ProcessEvent(&event);
+			switch (event.type)
+			{
+			case SDL_EVENT_QUIT:
+				running = false;
+				break;
+
+			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+				running = (event.window.windowID == SDL_GetWindowID(mpWindow));
+				break;
+
+			case SDL_EVENT_KEY_DOWN:
+				HandleKeyboardEvent(event.key);
+				break;
+
+			default:
+				break;
+			}
+		}
+	}
+
+	void Game::HandleKeyboardEvent(const SDL_KeyboardEvent& event)
+	{
+		switch (event.scancode)
+		{
+		case SDL_SCANCODE_SPACE:
+			ball->launch();
 			break;
 
-		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-			running = (event.window.windowID == SDL_GetWindowID(mpWindow));
+		case SDL_SCANCODE_LEFT:
 			break;
 
-		case SDL_EVENT_KEY_DOWN:
-			HandleKeyboardEvent(event.key);
+		case SDL_SCANCODE_RIGHT:
 			break;
 
 		default:
 			break;
 		}
 	}
-}
 
-void Game::HandleKeyboardEvent(const SDL_KeyboardEvent& event)
-{
-	switch (event.scancode)
+	void Game::Update(float dt)
 	{
-	case SDL_SCANCODE_SPACE:
-		ball->launch();
-		break;
-
-	case SDL_SCANCODE_LEFT:
-		break;
-
-	case SDL_SCANCODE_RIGHT:
-		break;
-
-	default:
-		break;
-	}
-}
-
-void Game::Update(float dt)
-{
-	const bool* keystate = SDL_GetKeyboardState(NULL);
-	paddle->handleInput(keystate, dt);
-	// if ball not launched, keep it above paddle
-	if (!ball->launched)
-	{
-		ball->setPosition(float(paddle->getRect().x + paddle->getRect().w/2), float(paddle->getRect().y - 12));
-	}
-	else
-	{
-		ball->update(dt);
-	}
-
-	// wall collisions
-	if (ball->x - ball->r < 0)
-	{
-		ball->x = ball->r;
-		ball->reflectX();
-	}
-
-	if (ball->x + ball->r > windowW)
-	{
-		ball->x = windowW - ball->r;
-		ball->reflectX();
-	}
-
-	if (ball->y - ball->r < 0)
-	{
-		ball->y = ball->r;
-		ball->reflectY();
-	}
-
-	// bottom (lose life)
-	if (ball->y - ball->r > windowH)
-	{
-		lives -= 1;
-		if (lives <= 0)
+		const bool* keystate = SDL_GetKeyboardState(NULL);
+		paddle->handleInput(keystate, dt);
+		// if ball not launched, keep it above paddle
+		if (!ball->launched)
 		{
-			ARK_INFO("You lost !");
-			running = false; // game over
+			ball->setPosition(float(paddle->getRect().x + paddle->getRect().w / 2), float(paddle->getRect().y - 12));
 		}
-		resetBall();
-	}
-
-	// paddle collision (basic)
-	SDL_FRect brect = ball->getRect();
-	SDL_FRect prect = paddle->getRect();
-	if (rectsIntersect(brect, prect) && ball->vy > 0)
-	{
-		// reflect and tweak angle depending on hit position
-		float hitPos = ((brect.x + brect.w / 2.0f) - (prect.x + prect.w / 2.0f)) / (prect.w / 2.0f);
-		float angle = hitPos * (3.14f / 3.0f); // +/- 60 degrees
-		float s = ball->speed;
-		ball->vx = s * sinf(angle);
-		ball->vy = -fabsf(s * cosf(angle));
-	}
-
-	// bricks collisions
-	for (auto& b : bricks)
-	{
-		if (!b->destroyed && rectsIntersect(brect, b->getRect()))
+		else
 		{
-			b->destroyed = true;
-			score += b->points;
-			// reflect ball - simple approach: reverse Y
+			ball->update(dt);
+		}
+
+		// wall collisions
+		if (ball->x - ball->r < 0)
+		{
+			ball->x = ball->r;
+			ball->reflectX();
+		}
+
+		if (ball->x + ball->r > mWindowW)
+		{
+			ball->x = mWindowW - ball->r;
+			ball->reflectX();
+		}
+
+		if (ball->y - ball->r < 0)
+		{
+			ball->y = ball->r;
 			ball->reflectY();
-			break; // only one brick per frame
 		}
-	}
 
-	// win condition
-	bool anyLeft = false;
-	for (auto& b : bricks)
-	{
-		if (!b->destroyed)
+		// bottom (lose life)
+		if (ball->y - ball->r > mWindowH)
 		{
-			anyLeft = true;
-			break;
+			lives -= 1;
+			if (lives <= 0)
+			{
+				ARK_INFO("You lost !");
+				running = false; // game over
+			}
+			resetBall();
+		}
+
+		// paddle collision (basic)
+		Rect brect = ball->getRect();
+		Rect prect = paddle->getRect();
+		if (rectsIntersect(brect, prect) && ball->vy > 0)
+		{
+			// reflect and tweak angle depending on hit position
+			float hitPos = ((brect.x + brect.w / 2.0f) - (prect.x + prect.w / 2.0f)) / (prect.w / 2.0f);
+			float angle = hitPos * (3.14f / 3.0f); // +/- 60 degrees
+			float s = ball->speed;
+			ball->vx = s * sinf(angle);
+			ball->vy = -fabsf(s * cosf(angle));
+		}
+
+		// bricks collisions
+		for (auto& b : bricks)
+		{
+			if (!b->destroyed && rectsIntersect(brect, b->getRect()))
+			{
+				b->destroyed = true;
+				score += b->points;
+				// reflect ball - simple approach: reverse Y
+				ball->reflectY();
+				break; // only one brick per frame
+			}
+		}
+
+		// win condition
+		bool anyLeft = false;
+		for (auto& b : bricks)
+		{
+			if (!b->destroyed)
+			{
+				anyLeft = true;
+				break;
+			}
+		}
+
+		if (!anyLeft)
+		{
+			ARK_INFO("You won !");
+			running = false; // win -> stop loop
 		}
 	}
 
-	if (!anyLeft)
+	void Game::Render()
 	{
-		ARK_INFO("You won !");
-		running = false; // win -> stop loop
+		ImGui::SetNextWindowPos(ImVec2(10, 10)); // Top-left corner of the screen
+
+		const ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
+			ImGuiWindowFlags_NoInputs |
+			ImGuiWindowFlags_AlwaysAutoResize |
+			ImGuiWindowFlags_NoBackground |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoFocusOnAppearing |
+			ImGuiWindowFlags_NoNav;
+
+		ImGui::Begin("Overlay", nullptr, flags);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
+		ImGui::TextUnformatted(fmt::format("Score: {}   Lives: {}", score, lives).c_str());
+		ImGui::PopStyleColor();
+		ImGui::End();
+
+		ImGui::Render();
+		ImGuiIO& io = ImGui::GetIO();
+		//SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
+		//SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
+		//SDL_RenderClear(renderer);
+
+		mpRenderer->BeginFrame();
+
+		//glClearColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f);
+		//glClear(GL_COLOR_BUFFER_BIT);
+		//glViewport(0, 0, mWindowW, mWindowH);
+
+		const glm::mat4 viewProj = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f); // ortographic projection
+
+		// draw bricks
+		for (auto& b : bricks)
+			b->render(*mpRenderer);
+
+		// paddle
+		paddle->render(*mpRenderer);
+
+		// ball
+		ball->render(*mpRenderer);
+
+		// HUD: score and lives
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		//SDL_RenderPresent(renderer);
+		//SDL_GL_SwapWindow(mpWindow);
+
+		mpRenderer->EndFrame();
 	}
-}
-
-void Game::Render()
-{
-	ImGui::SetNextWindowPos(ImVec2(10, 10)); // Top-left corner of the screen
-
-	const ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
-		ImGuiWindowFlags_NoInputs |
-		ImGuiWindowFlags_AlwaysAutoResize |
-		ImGuiWindowFlags_NoBackground |
-		ImGuiWindowFlags_NoSavedSettings |
-		ImGuiWindowFlags_NoFocusOnAppearing |
-		ImGuiWindowFlags_NoNav;
-
-	ImGui::Begin("Overlay", nullptr, flags);
-	ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
-	ImGui::TextUnformatted(fmt::format("Score: {}   Lives: {}", score, lives).c_str());
-	ImGui::PopStyleColor();
-	ImGui::End();
-
-
-	ImGui::Render();
-	ImGuiIO& io = ImGui::GetIO();
-	SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-	SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-	SDL_RenderClear(renderer);
-
-	// draw bricks
-	for (auto& b : bricks)
-		b->render(renderer);
-
-	// paddle
-	paddle->render(renderer);
-
-	// ball
-	ball->render(renderer);
-
-	// HUD: score and lives
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	SDL_RenderPresent(renderer);
 }

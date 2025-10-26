@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	//ImGui::StyleColorsDark();
 
-	Game game;
+	ark::Game game;
 	if (!game.Init())
 	{
 		ARK_ERROR("Failed to initialize the game");

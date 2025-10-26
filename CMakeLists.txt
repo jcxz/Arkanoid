@@ -47,6 +47,7 @@ set(ARKANOID_HEADERS
 	src/core/logger.h
 	src/core/maths.h
 	src/renderer/arkgl.h
+	src/renderer/renderer.h
 	src/renderer/shader_program.h
 	src/ball.h
 	src/brick.h
@@ -60,6 +61,7 @@ set(ARKANOID_SOURCES
 
 	src/core/logger.cpp
 	src/renderer/arkgl.cpp
+	src/renderer/renderer.cpp
 	src/renderer/shader_program.cpp
 	src/ball.cpp
 	src/brick.cpp

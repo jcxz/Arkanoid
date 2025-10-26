@@ -1,32 +1,35 @@
 #include "paddle.h"
-#include <spdlog/spdlog.h>
+#include "renderer/renderer.h"
+#include <SDL3/SDL.h>
 
 
-Paddle::Paddle(int x, int y, int w, int h, int winW)
+namespace ark
 {
-	rect = { float(x), float(y), float(w), float(h) };
-	windowW = winW;
-}
+	Paddle::Paddle(int x, int y, int w, int h, int winW)
+	{
+		rect = { float(x), float(y), float(w), float(h) };
+		windowW = winW;
+	}
 
-void Paddle::handleInput(const bool* keystate, float dt)
-{
-	float move = 0.0f;
-	if (keystate[SDL_SCANCODE_LEFT])
-		move -= 1.0f;
-	if (keystate[SDL_SCANCODE_RIGHT])
-		move += 1.0f;
+	void Paddle::handleInput(const bool* keystate, float dt)
+	{
+		float move = 0.0f;
+		if (keystate[SDL_SCANCODE_LEFT])
+			move -= 1.0f;
+		if (keystate[SDL_SCANCODE_RIGHT])
+			move += 1.0f;
 
-	rect.x += move * speed * dt;
+		rect.x += move * speed * dt;
 
-	if (rect.x < 0)
-		rect.x = 0;
+		if (rect.x < 0)
+			rect.x = 0;
 
-	if (rect.x + rect.w > windowW)
-		rect.x = windowW - rect.w;
-}
+		if (rect.x + rect.w > windowW)
+			rect.x = windowW - rect.w;
+	}
 
-void Paddle::render(SDL_Renderer* rdr)
-{
-	SDL_SetRenderDrawColor(rdr, 200, 200, 200, 255);
-	SDL_RenderFillRect(rdr, &rect);
+	void Paddle::render(Renderer& renderer)
+	{
+		renderer.DrawRect(rect, glm::vec4(200.0f / 255.0f, 200.0f / 255.0f, 200.0f / 255.0f, 1.0f));
+	}
 }

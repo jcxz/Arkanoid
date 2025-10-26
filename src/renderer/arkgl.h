@@ -7,6 +7,9 @@
 namespace ark
 {
 	extern const char* GLShaderTypeToString(const GLenum type);
+	extern const char* GLDebugMsgSourceToString(const GLenum source);
+	extern const char* GLDebugMsgTypeToString(const GLenum type);
+	extern const char* GLDebugMsgSeverityToString(const GLenum severity);
 	extern const char* GLErrorToString(const GLenum error);
 	extern void AssertGL(const char* const file, const int line);
 }
