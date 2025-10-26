@@ -25,7 +25,8 @@ namespace ark
 		//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		//SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-		mpWindow = SDL_CreateWindow("Arkanoid - SDL2", mWindowW, mWindowH, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+		//mpWindow = SDL_CreateWindow("Arkanoid - SDL2", mWindowW, mWindowH, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+		mpWindow = SDL_CreateWindow("Arkanoid - SDL2", mWindowW, mWindowH, SDL_WINDOW_OPENGL);
 		if (mpWindow == nullptr)
 		{
 			ARK_ERROR("SDL_CreateWindow failed: {}", SDL_GetError());
@@ -110,6 +111,10 @@ namespace ark
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 				running = (event.window.windowID == SDL_GetWindowID(mpWindow));
 				break;
+
+			//case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+			//	mpRenderer->ResizeViewport(event.window.data1, event.window.data2);
+			//	break;
 
 			case SDL_EVENT_KEY_DOWN:
 				HandleKeyboardEvent(event.key);
