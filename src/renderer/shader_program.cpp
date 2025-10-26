@@ -38,6 +38,12 @@ namespace ark
 		}
 	};
 
+	ShaderProgram::~ShaderProgram()
+	{
+		glDeleteProgram(mProgramID);
+		ARK_ASSERT_GL();
+	}
+
 	void ShaderProgram::Use()
 	{
 		glUseProgram(mProgramID);
@@ -215,7 +221,7 @@ namespace ark
 		//SetObjectName(ObjectType::Shader, shaderID, name.c_str());
 
 		const GLchar* shaderSources[] = {
-			"#version 330\n",
+			"#version 330 core\n",
 			source.c_str(),
 		};
 

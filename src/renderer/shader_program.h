@@ -28,6 +28,8 @@ namespace ark
 		typedef std::unordered_map<std::string, ShaderResourceInfo> ShaderResourceMap;
 
 	public:
+		~ShaderProgram();
+
 		const std::string& GetName() const { return mName; }
 
 		bool HasUniform(const std::string& name) const { return mUniforms.contains(name); }
