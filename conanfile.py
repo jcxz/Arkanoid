@@ -5,7 +5,7 @@ from conan.tools.cmake import cmake_layout
 from conan.tools.files import copy
 
 
-class ArkanoidConan(ConanFile):
+class Arkanoid(ConanFile):
     name = "Arkanoid"
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeToolchain", "CMakeDeps"
@@ -14,6 +14,7 @@ class ArkanoidConan(ConanFile):
         self.requires("sdl/3.2.20")
         self.requires("spdlog/1.16.0")
         self.requires("imgui/1.92.4")
+        self.requires("glew/2.2.0")
 
     def generate(self):
         copy(self, "*sdl3*",         os.path.join(self.dependencies["imgui"].package_folder, "res", "bindings"), os.path.join(self.source_folder, "external"))
