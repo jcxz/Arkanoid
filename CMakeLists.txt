@@ -46,7 +46,7 @@ set(ARKANOID_HEADERS
 	src/core/common.h
 	src/core/logger.h
 	src/core/maths.h
-	src/renderer/arkgl.h
+	src/renderer/ogl.h
 	src/renderer/renderer.h
 	src/renderer/shader_program.h
 	src/ball.h
@@ -60,7 +60,7 @@ set(ARKANOID_SOURCES
 	external/imgui_impl_opengl3.cpp
 
 	src/core/logger.cpp
-	src/renderer/arkgl.cpp
+	src/renderer/ogl.cpp
 	src/renderer/renderer.cpp
 	src/renderer/shader_program.cpp
 	src/ball.cpp
