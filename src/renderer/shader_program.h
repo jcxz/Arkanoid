@@ -68,7 +68,7 @@ namespace ark
 		static void InitResourceInfo(const unsigned int programID, ShaderResourceMap& resourceMap);
 
 	private:
-		unsigned int mProgramID = 0;    //! opengl's handle to the shader program
+		unsigned int mID = 0;           //! opengl's handle to the shader program
 		std::string mName;              //! name of the shader program (mostly for debugging)
 		ShaderResourceMap mAttributes;  //! input attributes required by the program
 		ShaderResourceMap mUniforms;    //! uniforms required by this shader program

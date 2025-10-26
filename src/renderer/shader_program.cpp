@@ -40,13 +40,13 @@ namespace ark
 
 	ShaderProgram::~ShaderProgram()
 	{
-		glDeleteProgram(mProgramID);
+		glDeleteProgram(mID);
 		ARK_ASSERT_GL();
 	}
 
 	void ShaderProgram::Use()
 	{
-		glUseProgram(mProgramID);
+		glUseProgram(mID);
 		ARK_ASSERT_GL();
 	}
 
@@ -98,10 +98,10 @@ namespace ark
 
 	ShaderProgram::ShaderProgram(const std::string& name, unsigned int id)
 		: mName(name)
-		, mProgramID(id)
+		, mID(id)
 	{
-		InitResourceInfo<AttributeTraits>(mProgramID, mAttributes);
-		InitResourceInfo<UniformTraits>(mProgramID, mUniforms);
+		InitResourceInfo<AttributeTraits>(mID, mAttributes);
+		InitResourceInfo<UniformTraits>(mID, mUniforms);
 	}
 
 	bool ShaderProgram::SetUniform(const std::string& name, const unsigned int count, const void* const pValues)
