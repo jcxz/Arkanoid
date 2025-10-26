@@ -16,8 +16,6 @@ namespace ark
 {
 	bool Game::Init()
 	{
-		// GL 3.0 + GLSL 130
-		//const char* glsl_version = "#version 330 core";
 		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -30,49 +28,13 @@ namespace ark
 		mpWindow = SDL_CreateWindow("Arkanoid - SDL2", mWindowW, mWindowH, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
 		if (mpWindow == nullptr)
 		{
-			ARK_ERROR("CreateWindow error: {}", SDL_GetError());
-			return false;
-		}
-#if 0
-		renderer = SDL_CreateRenderer(mpWindow, nullptr);
-		if (!mpWindow || !renderer)
-		{
-			ARK_ERROR("CreateWindow/Renderer error: {}", SDL_GetError());
+			ARK_ERROR("SDL_CreateWindow failed: {}", SDL_GetError());
 			return false;
 		}
 
-		gl_context = SDL_GL_CreateContext(mpWindow);
-		if (gl_context == nullptr)
-		{
-			ARK_ERROR("Error: SDL_GL_CreateContext(): {}", SDL_GetError());
-			return false;
-		}
-
-		const GLenum glewStatus = glewInit();
-		if (glewStatus != GLEW_OK)
-		{
-			ARK_ERROR("Failed to initialize glew: {}", (const char*)glewGetErrorString(glewStatus));
-			return false;
-		}
-
-		SDL_GL_MakeCurrent(mpWindow, gl_context);
-		//SDL_GL_SetSwapInterval(1); // Enable vsync
-		//SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-		//SDL_ShowWindow(window);
-
-		//InitGLDebugging();
-
-		// make a dummy VAO and bind it, because OpenGL 3.3 mandates one
-		glGenVertexArrays(1, &mVAO);
-		glBindVertexArray(mVAO);
-
-		// Setup Platform/Renderer backends
-		ImGui_ImplSDL3_InitForOpenGL(mpWindow, renderer);
-		ImGui_ImplOpenGL3_Init(glsl_version);
-#else
 		mpRenderer.reset(Renderer::Create(mpWindow));
 		mpRenderer->ResizeViewport(mWindowW, mWindowH);
-#endif
+		mpRenderer->SetBackgroundColor(glm::vec4(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f));
 		paddle = std::make_unique<Paddle>(mWindowW / 2 - 60, mWindowH - 40, 120, 16, mWindowW);
 		ball = std::make_unique<Ball>(mWindowW / 2.0f, mWindowH - 60.0f, 8.0f);
 		spawnLevel();
@@ -103,11 +65,8 @@ namespace ark
 
 	void Game::Terminate()
 	{
-		//glDeleteVertexArrays(1, &mVAO);
-		//ImGui_ImplOpenGL3_Shutdown();
-		//ImGui_ImplSDL3_Shutdown();
-		//if (renderer) SDL_DestroyRenderer(renderer);
-		if (mpWindow) SDL_DestroyWindow(mpWindow);
+		mpRenderer.reset();
+		SDL_DestroyWindow(mpWindow);
 	}
 
 	void Game::spawnLevel()
@@ -291,16 +250,8 @@ namespace ark
 		ImGui::Render();
 		ImGuiIO& io = ImGui::GetIO();
 		//SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
-		//SDL_SetRenderDrawColor(renderer, 30, 30, 30, 255);
-		//SDL_RenderClear(renderer);
 
 		mpRenderer->BeginFrame();
-
-		//glClearColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f);
-		//glClear(GL_COLOR_BUFFER_BIT);
-		//glViewport(0, 0, mWindowW, mWindowH);
-
-		const glm::mat4 viewProj = glm::ortho(0.0f, 800.0f, 600.0f, 0.0f, -1.0f, 1.0f); // ortographic projection
 
 		// draw bricks
 		for (auto& b : bricks)
@@ -314,8 +265,6 @@ namespace ark
 
 		// HUD: score and lives
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		//SDL_RenderPresent(renderer);
-		//SDL_GL_SwapWindow(mpWindow);
 
 		mpRenderer->EndFrame();
 	}
