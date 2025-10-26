@@ -16,8 +16,8 @@ namespace ark
 {
 	bool Game::Init()
 	{
-		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, 0);
+		//SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -53,12 +53,6 @@ namespace ark
 			const float dt = float(now - last) / float(SDL_GetPerformanceFrequency());
 			last = now;
 			HandleInput();
-
-			// Start the Dear ImGui frame
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplSDL3_NewFrame();
-			ImGui::NewFrame();
-
 			Update(dt);
 			Render();
 		}
@@ -232,10 +226,12 @@ namespace ark
 			ARK_INFO("You won !");
 			running = false; // win -> stop loop
 		}
-	}
 
-	void Game::Render()
-	{
+		// Start the Dear ImGui frame and generate some UI
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
+		ImGui::NewFrame();
+
 		ImGui::SetNextWindowPos(ImVec2(10, 10)); // Top-left corner of the screen
 
 		const ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
@@ -251,9 +247,12 @@ namespace ark
 		ImGui::TextUnformatted(fmt::format("Score: {}   Lives: {}", score, lives).c_str());
 		ImGui::PopStyleColor();
 		ImGui::End();
+	}
 
+	void Game::Render()
+	{
 		ImGui::Render();
-		ImGuiIO& io = ImGui::GetIO();
+		//ImGuiIO& io = ImGui::GetIO();
 		//SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 
 		mpRenderer->BeginFrame();
