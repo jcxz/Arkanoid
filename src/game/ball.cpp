@@ -6,17 +6,13 @@ namespace ark
 {
 	void Ball::Launch()
 	{
-		if (!mLaunched)
-		{
-			// initial direction up-right
-			//vx = speed * 0.7071f;
-			//vy = -speed * 0.7071f;
+		// initial direction up-right
+		//vx = speed * 0.7071f;
+		//vy = -speed * 0.7071f;
 
-			mVelocity.x = 0;
-			mVelocity.y = -mSpeed;
-
-			mLaunched = true;
-		}
+		mVelocity.x = 0;
+		mVelocity.y = -mSpeed;
+		mLaunched = true;
 	}
 
 	void Ball::Reset(const float x, const float y)
@@ -29,11 +25,8 @@ namespace ark
 
 	void Ball::Update(const float dt)
 	{
-		if (mLaunched)
-		{
-			mPos.x += mVelocity.x * dt;
-			mPos.y += mVelocity.y * dt;
-		}
+		mPos.x += mVelocity.x * dt;
+		mPos.y += mVelocity.y * dt;
 	}
 
 	void Ball::Render(Renderer& renderer)
