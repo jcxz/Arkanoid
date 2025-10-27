@@ -193,25 +193,25 @@ namespace ark
 			mpBall->Update(dt);
 
 			// ball/wall collisions
-			if (mpBall->GetPositionX() - mpBall->GetRadius() < 0)
+			if (mpBall->GetLeft() < 0)
 			{
 				mpBall->SetPositionX(mpBall->GetRadius());
 				mpBall->ReflectX();
 			}
 
-			if (mpBall->GetPositionX() + mpBall->GetRadius() > mWindowW)
+			if (mpBall->GetRight() > mWindowW)
 			{
 				mpBall->SetPositionX(mWindowW - mpBall->GetRadius());
 				mpBall->ReflectX();
 			}
 
-			if (mpBall->GetPositionY() - mpBall->GetRadius() < 0)
+			if (mpBall->GetTop() < 0)
 			{
 				mpBall->SetPositionY(mpBall->GetRadius());
 				mpBall->ReflectY();
 			}
 
-			if (mpBall->GetPositionY() - mpBall->GetRadius() > mWindowH)
+			if (mpBall->GetTop() > mWindowH)
 			{
 				if (--mLives <= 0)
 				{

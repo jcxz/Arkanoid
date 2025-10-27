@@ -16,10 +16,12 @@ namespace ark
 
 		Rect GetRect() const { return Rect(mPos.x - mRadius, mPos.y - mRadius, 2.0f * mRadius, 2.0f * mRadius); }
 
+		float GetLeft() const { return mPos.x - mRadius; }
+		float GetRight() const { return mPos.x + mRadius; }
+		float GetTop() const { return mPos.y - mRadius; }
+		float GetBottom() const { return mPos.y + mRadius; }
 		float GetRadius() const { return mRadius; }
 
-		float GetPositionX() const { return mPos.x; }
-		float GetPositionY() const { return mPos.y; }
 		void SetPosition(const float x, const float y) { mPos = glm::vec2(x, y); }
 		void SetPositionX(const float x) { mPos.x = x; }
 		void SetPositionY(const float y) { mPos.y = y; }
