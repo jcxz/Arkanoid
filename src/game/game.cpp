@@ -113,6 +113,11 @@ namespace ark
 				HandleKeyboardEvent(event.key);
 				break;
 
+			case SDL_EVENT_KEY_UP:
+				if ((event.key.scancode == SDL_SCANCODE_LEFT) || (event.key.scancode == SDL_SCANCODE_RIGHT))
+					mpPaddle->Stop();
+				break;
+
 			default:
 				break;
 			}
@@ -128,9 +133,11 @@ namespace ark
 			break;
 
 		case SDL_SCANCODE_LEFT:
+			mpPaddle->MoveLeft();
 			break;
 
 		case SDL_SCANCODE_RIGHT:
+			mpPaddle->MoveRight();
 			break;
 
 		default:
@@ -140,9 +147,6 @@ namespace ark
 
 	void Game::UpdateGame(const float dt)
 	{
-		const bool* keystate = SDL_GetKeyboardState(nullptr);
-		mpPaddle->HandleInput(keystate);
-
 		mpPaddle->Update(dt);
 
 		// if mpBall not launched, keep it above mpPaddle

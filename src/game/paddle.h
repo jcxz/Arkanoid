@@ -10,9 +10,15 @@ namespace ark
 	class Paddle
 	{
 	public:
-		Paddle(int x, int y, int w, int h, int winW);
+		Paddle(int x, int y, int w, int h, int winW)
+			: rect(float(x), float(y), float(w), float(h))
+			, windowW(winW)
+		{ }
+
 		Rect GetRect() const { return rect; }
-		void HandleInput(const bool* keystate);
+		void MoveLeft() { direction = -speed; }
+		void MoveRight() { direction = speed; }
+		void Stop() { direction = 0.0f; }
 		void Update(const float dt);
 		void Render(Renderer& renderer);
 
