@@ -20,8 +20,8 @@ namespace ark
 		//SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 		//SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-		//mpWindow = SDL_CreateWindow("Arkanoid - SDL2", mWindowW, mWindowH, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
-		mpWindow = SDL_CreateWindow("Arkanoid - SDL2", mWindowW, mWindowH, SDL_WINDOW_OPENGL);
+		//mpWindow = SDL_CreateWindow("Arkanoid", mWindowW, mWindowH, SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+		mpWindow = SDL_CreateWindow("Arkanoid", mWindowW, mWindowH, SDL_WINDOW_OPENGL);
 		if (mpWindow == nullptr)
 		{
 			ARK_ERROR("SDL_CreateWindow failed: {}", SDL_GetError());
