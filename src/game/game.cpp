@@ -266,7 +266,7 @@ namespace ark
 		switch (mState)
 		{
 		case State::Loaded:
-			return ShowCenteredMultiText(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), "Arkanoid", "Press Space to continue the game or Esc to quit.");
+			return ShowCenteredMultiText(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), "Arkanoid", "Press Space to start the game or Esc to quit.");
 
 		case State::Started:
 			return ShowText(glm::vec2(10.0f, 10.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), fmt::format("Score: {}   Lives: {}", mScore, mLives).c_str());
