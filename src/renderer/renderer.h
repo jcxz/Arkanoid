@@ -18,6 +18,7 @@ namespace ark
 
 		void SetBackgroundColor(const glm::vec4& bckgColor) { mBckgColor = bckgColor; }
 		void DrawRect(const Rect& rect, const glm::vec4& color);
+		void DrawRoundedRect(const Rect& rect, const float radius, const glm::vec4& color);
 		void DrawCircle(const Rect& rect, const glm::vec4& color);
 		void ResizeViewport(const unsigned int w, const unsigned int h);
 		void BeginFrame();
@@ -39,5 +40,6 @@ namespace ark
 		glm::vec4 mBckgColor;
 		std::unique_ptr<ShaderProgram> mpCircleProgram;
 		std::unique_ptr<ShaderProgram> mpRectProgram;
+		std::unique_ptr<ShaderProgram> mpRoundedRectProgram;
 	};
 }

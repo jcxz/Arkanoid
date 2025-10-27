@@ -69,6 +69,48 @@ void main()
 }
 )";
 
+static std::string kRoundedRectShaderVS = R"(
+uniform mat4 mvp;
+uniform vec4 rect;
+
+out vec2 quadPos;
+
+const vec2 vertices[4] = vec2[4](
+	vec2(1.0, 0.0),
+	vec2(1.0, 1.0),
+	vec2(0.0, 0.0),
+	vec2(0.0, 1.0)
+);
+
+void main()
+{
+	quadPos = vertices[gl_VertexID];
+	gl_Position = mvp * vec4(vertices[gl_VertexID] * rect.zw + rect.xy, 0.0, 1.0);
+}
+)";
+
+static std::string kRoundedRectShaderFS = R"(
+uniform vec4 color;
+uniform float radius;
+uniform vec4 rect;
+
+out vec4 fragColor;
+
+in vec2 quadPos;
+
+void main()
+{
+	vec2 halfSize = rect.zw * 0.5;
+	vec2 pos = (quadPos - 0.5) * rect.zw;
+	vec2 d = abs(pos) - (halfSize - vec2(radius));
+	float dist = length(max(d, 0.0)) - radius;
+
+	if (dist > 0.0)
+		discard;  // outside the rounded corner
+
+	fragColor = color;
+}
+)";
 
 static void GLAPIENTRY OGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 {
@@ -101,6 +143,7 @@ namespace ark
 	{
 		mpCircleProgram.reset();
 		mpRectProgram.reset();
+		mpRoundedRectProgram.reset();
 		glDeleteVertexArrays(1, &mVAO);
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplSDL3_Shutdown();
@@ -113,6 +156,17 @@ namespace ark
 		mpRectProgram->SetVector("rect", glm::vec4(rect.x, rect.y, rect.w, rect.h));
 		mpRectProgram->SetVector("color", color);
 		mpRectProgram->SetMatrix("mvp", mProjection);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		ARK_ASSERT_GL();
+	}
+
+	void Renderer::DrawRoundedRect(const Rect& rect, const float radius, const glm::vec4& color)
+	{
+		mpRoundedRectProgram->Use();
+		mpRoundedRectProgram->SetVector("rect", glm::vec4(rect.x, rect.y, rect.w, rect.h));
+		mpRoundedRectProgram->SetVector("color", color);
+		mpRoundedRectProgram->SetFloat("radius", radius);
+		mpRoundedRectProgram->SetMatrix("mvp", mProjection);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		ARK_ASSERT_GL();
 	}
@@ -205,9 +259,16 @@ namespace ark
 		}
 
 		pRenderer->mpRectProgram.reset(ShaderProgram::Create("rect", "rect.vs", kRectShaderVS, "rect.fs", kRectShaderFS));
-		if (pRenderer->mpCircleProgram == nullptr)
+		if (pRenderer->mpRectProgram == nullptr)
 		{
 			ARK_ERROR("Failed to initialize rect shader");
+			return nullptr;
+		}
+
+		pRenderer->mpRoundedRectProgram.reset(ShaderProgram::Create("rounded_rect", "rounded_rect.vs", kRoundedRectShaderVS, "rounded_rect.fs", kRoundedRectShaderFS));
+		if (pRenderer->mpRoundedRectProgram == nullptr)
+		{
+			ARK_ERROR("Failed to initialize rounded rect shader");
 			return nullptr;
 		}
 
