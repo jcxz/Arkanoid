@@ -19,6 +19,13 @@ namespace ark
 			: x(x), y(y), w(w), h(h)
 		{ }
 
+		float GetLeft() const { return x; }
+		float GetRight() const { return x + w; }
+		float GetTop() const { return y; }
+		float GetBottom() const { return y + h; }
+		float GetCenterX() const { return x + w / 2.0f; }
+		float GetCenterY() const { return y + h / 2.0f; }
+
 		bool Intersects(const Rect& other) const noexcept
 		{
 			return !(x + w < other.x || x > other.x + other.w || y + h < other.y || y > other.y + other.h);

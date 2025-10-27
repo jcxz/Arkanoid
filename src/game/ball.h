@@ -22,7 +22,6 @@ namespace ark
 		float GetBottom() const { return mPos.y + mRadius; }
 		float GetRadius() const { return mRadius; }
 
-		void SetPosition(const float x, const float y) { mPos = glm::vec2(x, y); }
 		void SetPositionX(const float x) { mPos.x = x; }
 		void SetPositionY(const float y) { mPos.y = y; }
 

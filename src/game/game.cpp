@@ -88,7 +88,7 @@ namespace ark
 
 	void Game::ResetBall()
 	{
-		mpBall->Reset(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->GetRadius());
+		mpBall->Reset(mpPaddle->GetCenterX(), mpPaddle->GetTop() - mpBall->GetRadius());
 	}
 
 	void Game::HandleInput()
@@ -182,10 +182,10 @@ namespace ark
 		mpPaddle->Update(dt);
 
 		// paddle/wall collisions
-		if (mpPaddle->GetRect().x < 0)
+		if (mpPaddle->GetLeft() < 0)
 			mpPaddle->SetPositionX(0);
-		else if (mpPaddle->GetRect().x + mpPaddle->GetRect().w > mWindowW)
-			mpPaddle->SetPositionX(mWindowW - mpPaddle->GetRect().w);
+		else if (mpPaddle->GetRight() > mWindowW)
+			mpPaddle->SetPositionX(mWindowW - mpPaddle->GetWidth());
 
 		// update ball
 		if (mpBall->IsLaunched())
@@ -226,7 +226,7 @@ namespace ark
 			// paddle/ball collisions
 			const Rect prect = mpPaddle->GetRect();
 			const Rect brect = mpBall->GetRect();
-			if (brect.Intersects(prect) && mpBall->GetVelocityY() > 0)
+			if (brect.Intersects(prect) && mpBall->GetVelocityY() > 0.0f)
 			{
 				// reflect and tweak angle depending on hit position
 				const float hitPos = ((brect.x + brect.w / 2.0f) - (prect.x + prect.w / 2.0f)) / (prect.w / 2.0f);
@@ -243,7 +243,7 @@ namespace ark
 					b->SetDestroyed();
 					--mBricksLeft;
 					mScore += b->GetPoints();
-					// reflect mpBall - simple approach: reverse Y
+					// reflect ball - simple approach: reverse Y
 					mpBall->ReflectY();
 					break; // only one brick per frame
 				}
@@ -255,7 +255,8 @@ namespace ark
 		}
 		else
 		{
-			mpBall->SetPosition(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->GetRadius());
+			mpBall->SetPositionX(mpPaddle->GetCenterX());
+			mpBall->SetPositionY(mpPaddle->GetTop() - mpBall->GetRadius());
 		}
 	}
 

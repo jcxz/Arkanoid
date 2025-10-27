@@ -15,6 +15,15 @@ namespace ark
 		{ }
 
 		const Rect& GetRect() const { return mRect; }
+		float GetWidth() const { return mRect.w; }
+		float GetHeight() const { return mRect.h; }
+		float GetLeft() const { return mRect.GetLeft(); }
+		float GetRight() const { return mRect.GetRight(); }
+		float GetTop() const { return mRect.GetTop(); }
+		float GetBottom() const { return mRect.GetBottom(); }
+		float GetCenterX() const { return mRect.GetCenterX(); }
+		float GetCenterY() const { return mRect.GetCenterY(); }
+
 		void MoveLeft() { mDirection = -mSpeed; }
 		void MoveRight() { mDirection = mSpeed; }
 		void Stop() { mDirection = 0.0f; }

@@ -19,7 +19,8 @@ namespace ark
 	{
 		mLaunched = false;
 		mSpeed = 300.0f;
-		SetPosition(x, y);
+		SetPositionX(x);
+		SetPositionY(y);
 		SetVelocity(0, 0);
 	}
 
