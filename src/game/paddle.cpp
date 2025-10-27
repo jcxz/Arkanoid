@@ -19,6 +19,6 @@ namespace ark
 
 	void Paddle::Render(Renderer& renderer)
 	{
-		renderer.DrawRect(mRect, glm::vec4(200.0f / 255.0f, 200.0f / 255.0f, 200.0f / 255.0f, 1.0f));
+		renderer.DrawRoundedRect(mRect, 8.0f, glm::vec4(200.0f / 255.0f, 200.0f / 255.0f, 200.0f / 255.0f, 1.0f));
 	}
 }
