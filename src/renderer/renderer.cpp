@@ -149,8 +149,10 @@ namespace ark
 		mpRectProgram.reset();
 		mpRoundedRectProgram.reset();
 		glDeleteVertexArrays(1, &mVAO);
+		ARK_ASSERT_GL();
 		ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplSDL3_Shutdown();
+		ARK_ASSERT_GL();
 		SDL_GL_DestroyContext(mpGLContext);
 	}
 
@@ -195,7 +197,9 @@ namespace ark
 	void Renderer::BeginFrame()
 	{
 		glClearColor(mBckgColor.x, mBckgColor.y, mBckgColor.z, mBckgColor.w);
+		ARK_ASSERT_GL();
 		glClear(GL_COLOR_BUFFER_BIT);
+		ARK_ASSERT_GL();
 	}
 
 	void Renderer::EndFrame()
@@ -246,6 +250,7 @@ namespace ark
 		// Setup ImGui backends
 		ImGui_ImplSDL3_InitForOpenGL(pRenderer->mpWindow, pRenderer->mpGLContext);
 		ImGui_ImplOpenGL3_Init(nullptr);
+		ARK_ASSERT_GL();
 
 		// make a dummy VAO and bind it, because OpenGL 3.3 mandates one
 		glGenVertexArrays(1, &pRenderer->mVAO);
