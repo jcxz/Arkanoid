@@ -11,21 +11,21 @@ namespace ark
 	{
 	public:
 		Paddle(int x, int y, int w, int h, int winW)
-			: rect(float(x), float(y), float(w), float(h))
-			, windowW(winW)
+			: mRect(float(x), float(y), float(w), float(h))
+			, mWindowW(winW)
 		{ }
 
-		Rect GetRect() const { return rect; }
-		void MoveLeft() { direction = -speed; }
-		void MoveRight() { direction = speed; }
-		void Stop() { direction = 0.0f; }
+		Rect GetRect() const { return mRect; }
+		void MoveLeft() { mDirection = -mSpeed; }
+		void MoveRight() { mDirection = mSpeed; }
+		void Stop() { mDirection = 0.0f; }
 		void Update(const float dt);
 		void Render(Renderer& renderer);
 
 	private:
-		Rect rect;
-		int windowW;
-		float speed = 500.0f;
-		float direction = 0.0f;
+		Rect mRect;
+		int mWindowW;
+		float mSpeed = 500.0f;
+		float mDirection = 0.0f;
 	};
 }

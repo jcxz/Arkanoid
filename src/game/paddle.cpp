@@ -7,17 +7,17 @@ namespace ark
 {
 	void Paddle::Update(const float dt)
 	{
-		rect.x += direction *dt;
+		mRect.x += mDirection * dt;
 
-		if (rect.x < 0)
-			rect.x = 0;
+		if (mRect.x < 0)
+			mRect.x = 0;
 
-		if (rect.x + rect.w > windowW)
-			rect.x = windowW - rect.w;
+		if (mRect.x + mRect.w > mWindowW)
+			mRect.x = mWindowW - mRect.w;
 	}
 
 	void Paddle::Render(Renderer& renderer)
 	{
-		renderer.DrawRect(rect, glm::vec4(200.0f / 255.0f, 200.0f / 255.0f, 200.0f / 255.0f, 1.0f));
+		renderer.DrawRect(mRect, glm::vec4(200.0f / 255.0f, 200.0f / 255.0f, 200.0f / 255.0f, 1.0f));
 	}
 }
