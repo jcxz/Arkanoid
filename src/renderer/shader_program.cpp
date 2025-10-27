@@ -147,58 +147,6 @@ namespace ark
 		case GL_FLOAT_MAT4x3:      glUniformMatrix4x3fv(it->second.location, it->second.count, GL_FALSE, reinterpret_cast<const GLfloat*>(pValues)); ARK_ASSERT_GL(); return true;
 		case GL_FLOAT_MAT4:        glUniformMatrix4fv  (it->second.location, it->second.count, GL_FALSE, reinterpret_cast<const GLfloat*>(pValues)); ARK_ASSERT_GL(); return true;
 
-//#ifndef USE_GL_ES
-//		case GL_SAMPLER_1D:                                return ShaderResourceType::Texture;
-//#endif
-//		case GL_SAMPLER_2D:                                return ShaderResourceType::Texture;
-//		case GL_SAMPLER_3D:                                return ShaderResourceType::Texture;
-//		case GL_SAMPLER_CUBE:                              return ShaderResourceType::Texture;
-//#ifndef USE_GL_ES
-//		case GL_SAMPLER_1D_SHADOW:                         return ShaderResourceType::Texture;
-//#endif
-//		case GL_SAMPLER_2D_SHADOW:                         return ShaderResourceType::Texture;
-//#ifndef USE_GL_ES
-//		case GL_SAMPLER_1D_ARRAY:                          return ShaderResourceType::Texture;
-//#endif
-//		case GL_SAMPLER_2D_ARRAY:                          return ShaderResourceType::Texture;
-//#ifndef USE_GL_ES
-//		case GL_SAMPLER_1D_ARRAY_SHADOW:                   return ShaderResourceType::Texture;
-//#endif
-//		case GL_SAMPLER_2D_ARRAY_SHADOW:                   return ShaderResourceType::Texture;
-//		case GL_SAMPLER_2D_MULTISAMPLE:                    return ShaderResourceType::Texture;
-//		case GL_SAMPLER_2D_MULTISAMPLE_ARRAY:              return ShaderResourceType::Texture;
-//		case GL_SAMPLER_CUBE_SHADOW:                       return ShaderResourceType::Texture;
-//		case GL_SAMPLER_BUFFER:                            return ShaderResourceType::Texture;
-//#ifndef USE_GL_ES
-//		case GL_SAMPLER_2D_RECT:                           return ShaderResourceType::Texture;
-//		case GL_SAMPLER_2D_RECT_SHADOW:                    return ShaderResourceType::Texture;
-//		case GL_INT_SAMPLER_1D:                            return ShaderResourceType::Texture;
-//#endif
-//		case GL_INT_SAMPLER_2D:                            return ShaderResourceType::Texture;
-//		case GL_INT_SAMPLER_3D:                            return ShaderResourceType::Texture;
-//		case GL_INT_SAMPLER_CUBE:                          return ShaderResourceType::Texture;
-//#ifndef USE_GL_ES
-//		case GL_INT_SAMPLER_1D_ARRAY:                      return ShaderResourceType::Texture;
-//#endif
-//		case GL_INT_SAMPLER_2D_ARRAY:                      return ShaderResourceType::Texture;
-//		case GL_INT_SAMPLER_2D_MULTISAMPLE:                return ShaderResourceType::Texture;
-//		case GL_INT_SAMPLER_2D_MULTISAMPLE_ARRAY:          return ShaderResourceType::Texture;
-//		case GL_INT_SAMPLER_BUFFER:                        return ShaderResourceType::Texture;
-//#ifndef USE_GL_ES
-//		case GL_INT_SAMPLER_2D_RECT:                       return ShaderResourceType::Texture;
-//		case GL_UNSIGNED_INT_SAMPLER_1D:                   return ShaderResourceType::Texture;
-//#endif
-//		case GL_UNSIGNED_INT_SAMPLER_2D:                   return ShaderResourceType::Texture;
-//		case GL_UNSIGNED_INT_SAMPLER_3D:                   return ShaderResourceType::Texture;
-//		case GL_UNSIGNED_INT_SAMPLER_CUBE:                 return ShaderResourceType::Texture;
-//#ifndef USE_GL_ES
-//		case GL_UNSIGNED_INT_SAMPLER_1D_ARRAY:             return ShaderResourceType::Texture;
-//#endif
-//		case GL_UNSIGNED_INT_SAMPLER_2D_ARRAY:             return ShaderResourceType::Texture;
-//		case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE:       return ShaderResourceType::Texture;
-//		case GL_UNSIGNED_INT_SAMPLER_2D_MULTISAMPLE_ARRAY: return ShaderResourceType::Texture;
-//		case GL_UNSIGNED_INT_SAMPLER_BUFFER:               return ShaderResourceType::Texture;
-
 		default:
 			ARK_WTF("Unsupported shader resource type");
 			return false;;
