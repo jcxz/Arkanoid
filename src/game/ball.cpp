@@ -31,6 +31,6 @@ namespace ark
 
 	void Ball::Render(Renderer& renderer)
 	{
-		renderer.DrawCircle(mPos, mRadius, glm::vec4(0.75f, 0.75f, 0.0f, 1.0f));
+		renderer.DrawCircle(GetRect(), glm::vec4(0.75f, 0.75f, 0.0f, 1.0f));
 	}
 }

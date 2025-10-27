@@ -18,7 +18,7 @@ namespace ark
 
 		void SetBackgroundColor(const glm::vec4& bckgColor) { mBckgColor = bckgColor; }
 		void DrawRect(const Rect& rect, const glm::vec4& color);
-		void DrawCircle(const glm::vec2& pos, const float radius, const glm::vec4& color);
+		void DrawCircle(const Rect& rect, const glm::vec4& color);
 		void ResizeViewport(const unsigned int w, const unsigned int h);
 		void BeginFrame();
 		void EndFrame();

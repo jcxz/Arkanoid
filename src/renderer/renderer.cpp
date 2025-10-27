@@ -7,8 +7,7 @@
 
 static std::string kCircleShaderVS = R"(
 uniform mat4 mvp;
-uniform vec2 pos;
-uniform vec2 size;
+uniform vec4 rect;
 
 const vec2 vertices[4] = vec2[4](
 	vec2(1.0, 0.0),
@@ -23,7 +22,7 @@ void main()
 {
 	vec2 p = vertices[gl_VertexID];
 	quadPos = p * 2.0 - 1.0;
-	gl_Position = mvp * vec4(p * size + pos, 0.0, 1.0);
+	gl_Position = mvp * vec4(p * rect.zw + rect.xy, 0.0, 1.0);
 }
 )";
 
@@ -118,11 +117,10 @@ namespace ark
 		ARK_ASSERT_GL();
 	}
 
-	void Renderer::DrawCircle(const glm::vec2& pos, const float radius, const glm::vec4& color)
+	void Renderer::DrawCircle(const Rect& rect, const glm::vec4& color)
 	{
 		mpCircleProgram->Use();
-		mpCircleProgram->SetVector("pos", pos);
-		mpCircleProgram->SetVector("size", glm::vec2(radius * 2.0f, radius * 2.0f));
+		mpCircleProgram->SetVector("rect", glm::vec4(rect.x, rect.y, rect.w, rect.h));
 		mpCircleProgram->SetVector("color", color);
 		mpCircleProgram->SetMatrix("mvp", mProjection);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
