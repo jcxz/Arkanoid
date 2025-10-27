@@ -156,6 +156,9 @@ namespace ark
 				else
 					mpBall->Launch();
 				break;
+
+			default:
+				break;
 			}
 			break;
 
@@ -283,6 +286,9 @@ namespace ark
 
 		case State::PausedDefeat:
 			return ShowCenteredMultiText(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), "You Lost!", "Press Space to restart the game or Esc to quit.");
+
+		default:
+			break;
 		}
 	}
 

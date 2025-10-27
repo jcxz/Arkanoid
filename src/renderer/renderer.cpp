@@ -112,7 +112,9 @@ void main()
 }
 )";
 
-static void GLAPIENTRY OGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+
+#if !defined(ARK_OS_MACOS) && !defined(ARK_OS_IOS) && !defined(ARK_OS_TVOS)
+static void GLAPIENTRY OGLDebugCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei /* length */, const GLchar* message, const void* userParam)
 {
 	using namespace ark;
 
@@ -136,6 +138,8 @@ static void GLAPIENTRY OGLDebugCallback(GLenum source, GLenum type, GLuint id, G
 		break;
 	}
 }
+#endif
+
 
 namespace ark
 {

@@ -97,8 +97,8 @@ namespace ark
 	}
 
 	ShaderProgram::ShaderProgram(const std::string& name, unsigned int id)
-		: mName(name)
-		, mID(id)
+		: mID(id)
+		, mName(name)
 	{
 		InitResourceInfo<AttributeTraits>(mID, mAttributes);
 		InitResourceInfo<UniformTraits>(mID, mUniforms);
