@@ -62,18 +62,18 @@ namespace ark
 	void Game::RestartLevel()
 	{
 		mBricks.clear();
-		int rows = 5;
-		int cols = 10;
-		int bw = 64;
-		int bh = 24;
-		int startX = (mWindowW - cols * bw) / 2;
-		int startY = 60;
+		const int rows = 5;
+		const int cols = 10;
+		const int bw = 64;
+		const int bh = 24;
+		const int startX = (mWindowW - cols * bw) / 2;
+		const int startY = 60;
 		for (int r = 0; r < rows; ++r)
 		{
 			for (int c = 0; c < cols; ++c)
 			{
 				Brick::Color col = (r % 3 == 0 ? Brick::Color::Red : (r % 3 == 1 ? Brick::Color::Green : Brick::Color::Blue));
-				int pts = (r % 3 == 0 ? 100 : (r % 3 == 1 ? 50 : 30));
+				const int pts = (r % 3 == 0 ? 100 : (r % 3 == 1 ? 50 : 30));
 				mBricks.emplace_back(std::make_unique<Brick>(startX + c * bw, startY + r * bh, bw - 4, bh - 4, col, pts));
 			}
 		}
@@ -228,11 +228,11 @@ namespace ark
 		if (brect.Intersects(prect) && mpBall->mVelocity.y > 0)
 		{
 			// reflect and tweak angle depending on hit position
-			float hitPos = ((brect.x + brect.w / 2.0f) - (prect.x + prect.w / 2.0f)) / (prect.w / 2.0f);
-			float angle = hitPos * (3.14f / 3.0f); // +/- 60 degrees
-			float s = mpBall->mSpeed;
-			mpBall->mVelocity.x = s * sinf(angle);
-			mpBall->mVelocity.y = -fabsf(s * cosf(angle));
+			const float hitPos = ((brect.x + brect.w / 2.0f) - (prect.x + prect.w / 2.0f)) / (prect.w / 2.0f);
+			const float angle = hitPos * (3.14f / 3.0f); // +/- 60 degrees
+			const float s = mpBall->mSpeed;
+			mpBall->mVelocity.x = s * std::sin(angle);
+			mpBall->mVelocity.y = -std::abs(s * std::cos(angle));
 		}
 
 		// mBricks collisions
