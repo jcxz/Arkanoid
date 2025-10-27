@@ -19,6 +19,7 @@ namespace ark
 		void MoveLeft() { mDirection = -mSpeed; }
 		void MoveRight() { mDirection = mSpeed; }
 		void Stop() { mDirection = 0.0f; }
+		void Reset(const float x, const float y);
 		void Update(const float dt);
 		void Render(Renderer& renderer);
 

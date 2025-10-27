@@ -78,6 +78,7 @@ namespace ark
 			}
 		}
 
+		mpPaddle->Reset(float(mWindowW / 2 - 60), float(mWindowH - 40));
 		ResetBall();
 		mLives = 3;
 		mScore = 0;
@@ -209,13 +210,14 @@ namespace ark
 		// bottom (lose life)
 		if (mpBall->mPos.y - mpBall->mRadius > mWindowH)
 		{
-			mLives -= 1;
-			if (mLives <= 0)
+			if (--mLives <= 0)
 			{
-				ARK_INFO("You lost !");
 				mState = State::PausedDefeat;
 			}
-			ResetBall();
+			else
+			{
+				ResetBall();  // if we fall through wee need to reset the ball
+			}
 		}
 
 		// mpPaddle collision (basic)
@@ -257,7 +259,6 @@ namespace ark
 
 		if (!anyLeft)
 		{
-			ARK_INFO("You won !");
 			mState = State::PausedVictory;
 		}
 	}
