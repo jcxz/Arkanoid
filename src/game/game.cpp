@@ -251,9 +251,7 @@ namespace ark
 
 		// win condition
 		if (mBricksLeft <= 0)
-		{
 			mState = State::PausedVictory;
-		}
 	}
 
 	void Game::UpdateUI()
