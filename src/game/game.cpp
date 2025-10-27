@@ -298,13 +298,13 @@ namespace ark
 		for (auto& b : mBricks)
 			b->Render(*mpRenderer);
 
-		// mpPaddle
+		// draw the paddle
 		mpPaddle->Render(*mpRenderer);
 
-		// mpBall
+		// draw the ball
 		mpBall->Render(*mpRenderer);
 
-		// HUD: score and lives
+		// draw UI
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		mpRenderer->EndFrame();
