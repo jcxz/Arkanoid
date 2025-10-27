@@ -15,12 +15,6 @@ namespace ark
 	void Paddle::Update(const float dt)
 	{
 		mRect.x += mDirection * dt;
-
-		if (mRect.x < 0)
-			mRect.x = 0;
-
-		if (mRect.x + mRect.w > mWindowW)
-			mRect.x = mWindowW - mRect.w;
 	}
 
 	void Paddle::Render(Renderer& renderer)

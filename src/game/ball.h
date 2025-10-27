@@ -15,10 +15,22 @@ namespace ark
 		{ }
 
 		Rect GetRect() const { return Rect(mPos.x - mRadius, mPos.y - mRadius, 2.0f * mRadius, 2.0f * mRadius); }
+
+		float GetRadius() const { return mRadius; }
+
+		float GetPositionX() const { return mPos.x; }
+		float GetPositionY() const { return mPos.y; }
 		void SetPosition(const float x, const float y) { mPos = glm::vec2(x, y); }
+		void SetPositionX(const float x) { mPos.x = x; }
+		void SetPositionY(const float y) { mPos.y = y; }
+
+		float GetVelocityX() const { return mVelocity.x; }
+		float GetVelocityY() const { return mVelocity.y; }
 		void SetVelocity(const float x, const float y) { mVelocity = glm::vec2(x, y); }
 		void ReflectX() { mVelocity.x = -mVelocity.x; }
 		void ReflectY() { mVelocity.y = -mVelocity.y; }
+
+		float GetSpeed() const { return mSpeed; }
 		bool IsLaunched() const { return mLaunched; }
 
 		void Launch();
@@ -26,10 +38,10 @@ namespace ark
 		void Update(const float dt);
 		void Render(Renderer& renderer);
 
-	public:
+	private:
 		glm::vec2 mPos;
-		float mRadius;
 		glm::vec2 mVelocity = glm::vec2(0.0f, 0.0f);
+		float mRadius = 0.0f;
 		float mSpeed = 300.0f;
 		bool mLaunched = false;
 	};

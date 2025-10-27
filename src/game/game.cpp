@@ -31,7 +31,7 @@ namespace ark
 		mpRenderer.reset(Renderer::Create(mpWindow));
 		mpRenderer->ResizeViewport(mWindowW, mWindowH);
 		mpRenderer->SetBackgroundColor(glm::vec4(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f));
-		mpPaddle = std::make_unique<Paddle>(mWindowW / 2 - 60, mWindowH - 40, 120, 16, mWindowW);
+		mpPaddle = std::make_unique<Paddle>(mWindowW / 2 - 60, mWindowH - 40, 120, 16);
 		mpBall = std::make_unique<Ball>(mWindowW / 2.0f, mWindowH - 60.0f, 8.0f);
 		RestartLevel();
 		return true;
@@ -88,7 +88,7 @@ namespace ark
 
 	void Game::ResetBall()
 	{
-		mpBall->Reset(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->mRadius);
+		mpBall->Reset(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->GetRadius());
 	}
 
 	void Game::HandleInput()
@@ -181,77 +181,82 @@ namespace ark
 		// update paddle
 		mpPaddle->Update(dt);
 
+		// paddle/wall collisions
+		if (mpPaddle->GetRect().x < 0)
+			mpPaddle->SetPositionX(0);
+		else if (mpPaddle->GetRect().x + mpPaddle->GetRect().w > mWindowW)
+			mpPaddle->SetPositionX(mWindowW - mpPaddle->GetRect().w);
+
 		// update ball
 		if (mpBall->IsLaunched())
 		{
 			mpBall->Update(dt);
+
+			// ball/wall collisions
+			if (mpBall->GetPositionX() - mpBall->GetRadius() < 0)
+			{
+				mpBall->SetPositionX(mpBall->GetRadius());
+				mpBall->ReflectX();
+			}
+
+			if (mpBall->GetPositionX() + mpBall->GetRadius() > mWindowW)
+			{
+				mpBall->SetPositionX(mWindowW - mpBall->GetRadius());
+				mpBall->ReflectX();
+			}
+
+			if (mpBall->GetPositionY() - mpBall->GetRadius() < 0)
+			{
+				mpBall->SetPositionY(mpBall->GetRadius());
+				mpBall->ReflectY();
+			}
+
+			if (mpBall->GetPositionY() - mpBall->GetRadius() > mWindowH)
+			{
+				if (--mLives <= 0)
+				{
+					mState = State::PausedDefeat;
+				}
+				else
+				{
+					ResetBall();  // if we fall through we need to reset the ball
+				}
+			}
+
+			// paddle/ball collisions
+			const Rect prect = mpPaddle->GetRect();
+			const Rect brect = mpBall->GetRect();
+			if (brect.Intersects(prect) && mpBall->GetVelocityY() > 0)
+			{
+				// reflect and tweak angle depending on hit position
+				const float hitPos = ((brect.x + brect.w / 2.0f) - (prect.x + prect.w / 2.0f)) / (prect.w / 2.0f);
+				const float angle = hitPos * (3.14f / 3.0f); // +/- 60 degrees
+				const float speed = mpBall->GetSpeed();
+				mpBall->SetVelocity(speed * std::sin(angle), -std::abs(speed * std::cos(angle)));
+			}
+
+			// ball/brick collisions
+			for (auto& b : mBricks)
+			{
+				if (!b->IsDestroyed() && brect.Intersects(b->GetRect()))
+				{
+					b->SetDestroyed();
+					--mBricksLeft;
+					mScore += b->GetPoints();
+					// reflect mpBall - simple approach: reverse Y
+					mpBall->ReflectY();
+					break; // only one brick per frame
+				}
+			}
+
+			// win condition
+			if (mBricksLeft <= 0)
+				mState = State::PausedVictory;
 		}
 		else
 		{
-			mpBall->SetPosition(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->mRadius);
+			mpBall->SetPosition(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->GetRadius());
 		}
-
-		// ball/wall collisions
-		if (mpBall->mPos.x - mpBall->mRadius < 0)
-		{
-			mpBall->mPos.x = mpBall->mRadius;
-			mpBall->ReflectX();
-		}
-
-		if (mpBall->mPos.x + mpBall->mRadius > mWindowW)
-		{
-			mpBall->mPos.x = mWindowW - mpBall->mRadius;
-			mpBall->ReflectX();
-		}
-
-		if (mpBall->mPos.y - mpBall->mRadius < 0)
-		{
-			mpBall->mPos.y = mpBall->mRadius;
-			mpBall->ReflectY();
-		}
-
-		if (mpBall->mPos.y - mpBall->mRadius > mWindowH)
-		{
-			if (--mLives <= 0)
-			{
-				mState = State::PausedDefeat;
-			}
-			else
-			{
-				ResetBall();  // if we fall through wee need to reset the ball
-			}
-		}
-
-		// paddle/ball collisions
-		const Rect brect = mpBall->GetRect();
-		const Rect prect = mpPaddle->GetRect();
-		if (brect.Intersects(prect) && mpBall->mVelocity.y > 0)
-		{
-			// reflect and tweak angle depending on hit position
-			const float hitPos = ((brect.x + brect.w / 2.0f) - (prect.x + prect.w / 2.0f)) / (prect.w / 2.0f);
-			const float angle = hitPos * (3.14f / 3.0f); // +/- 60 degrees
-			const float s = mpBall->mSpeed;
-			mpBall->mVelocity.x = s * std::sin(angle);
-			mpBall->mVelocity.y = -std::abs(s * std::cos(angle));
-		}
-
-		// ball/brick collisions
-		for (auto& b : mBricks)
-		{
-			if (!b->IsDestroyed() && brect.Intersects(b->GetRect()))
-			{
-				b->SetDestroyed();
-				--mBricksLeft;
-				mScore += b->GetPoints();
-				// reflect mpBall - simple approach: reverse Y
-				mpBall->ReflectY();
-				break; // only one brick per frame
-			}
-		}
-
-		// win condition
-		if (mBricksLeft <= 0)
-			mState = State::PausedVictory;
 	}
 
 	void Game::UpdateUI()
