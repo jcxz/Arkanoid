@@ -88,7 +88,7 @@ namespace ark
 
 	void Game::ResetBall()
 	{
-		mpBall->Reset(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->mRadius * 2.0f);
+		mpBall->Reset(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->GetRadius());
 	}
 
 	void Game::HandleInput()
@@ -151,10 +151,10 @@ namespace ark
 				break;
 
 			case State::Started:
-				if (!mpBall->IsLaunched())
-					mpBall->Launch();
-				else
+				if (mpBall->IsLaunched())
 					mState = State::Paused;
+				else
+					mpBall->Launch();
 				break;
 			}
 			break;
@@ -178,19 +178,20 @@ namespace ark
 
 	void Game::UpdateGame(const float dt)
 	{
+		// update paddle
 		mpPaddle->Update(dt);
 
-		// if mpBall not launched, keep it above mpPaddle
-		if (!mpBall->IsLaunched())
-		{
-			mpBall->SetPosition(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->mRadius * 2.0f);
-		}
-		else
+		// update ball
+		if (mpBall->IsLaunched())
 		{
 			mpBall->Update(dt);
 		}
+		else
+		{
+			mpBall->SetPosition(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->GetRadius());
+		}
 
-		// wall collisions
+		// ball/wall collisions
 		if (mpBall->mPos.x - mpBall->mRadius < 0)
 		{
 			mpBall->mPos.x = mpBall->mRadius;
@@ -209,7 +210,6 @@ namespace ark
 			mpBall->ReflectY();
 		}
 
-		// bottom (lose life)
 		if (mpBall->mPos.y - mpBall->mRadius > mWindowH)
 		{
 			if (--mLives <= 0)
@@ -222,7 +222,7 @@ namespace ark
 			}
 		}
 
-		// mpPaddle collision (basic)
+		// paddle/ball collisions
 		const Rect brect = mpBall->GetRect();
 		const Rect prect = mpPaddle->GetRect();
 		if (brect.Intersects(prect) && mpBall->mVelocity.y > 0)
@@ -235,7 +235,7 @@ namespace ark
 			mpBall->mVelocity.y = -std::abs(s * std::cos(angle));
 		}
 
-		// mBricks collisions
+		// ball/brick collisions
 		for (auto& b : mBricks)
 		{
 			if (!b->IsDestroyed() && brect.Intersects(b->GetRect()))
