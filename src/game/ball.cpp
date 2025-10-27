@@ -19,6 +19,14 @@ namespace ark
 		}
 	}
 
+	void Ball::Reset(const float x, const float y)
+	{
+		mLaunched = false;
+		mSpeed = 300.0f;
+		SetPosition(x, y);
+		SetVelocity(0, 0);
+	}
+
 	void Ball::Update(const float dt)
 	{
 		if (mLaunched)

@@ -34,20 +34,20 @@ namespace ark
 		mpPaddle = std::make_unique<Paddle>(mWindowW / 2 - 60, mWindowH - 40, 120, 16, mWindowW);
 		mpBall = std::make_unique<Ball>(mWindowW / 2.0f, mWindowH - 60.0f, 8.0f);
 		RestartLevel();
-		running = true;
 		return true;
 	}
 
 	void Game::Run()
 	{
 		Uint64 last = SDL_GetPerformanceCounter();
-		while (running)
+		while (mState != State::Closed)
 		{
 			const Uint64 now = SDL_GetPerformanceCounter();
 			const float dt = float(now - last) / float(SDL_GetPerformanceFrequency());
 			last = now;
 			HandleInput();
-			Update(dt);
+			if (mState == State::Started)
+				UpdateGame(dt);
 			UpdateUI();
 			Render();
 		}
@@ -79,14 +79,13 @@ namespace ark
 		}
 
 		ResetBall();
+		mLives = 3;
+		mScore = 0;
 	}
 
 	void Game::ResetBall()
 	{
-		mpBall->mLaunched = false;
-		mpBall->mSpeed = 300.0f;
-		mpBall->SetPosition(float(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2), float(mpPaddle->GetRect().y - 12));
-		mpBall->SetVelocity(0, 0);
+		mpBall->Reset(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->mRadius * 2.0f);
 	}
 
 	void Game::HandleInput()
@@ -98,11 +97,12 @@ namespace ark
 			switch (event.type)
 			{
 			case SDL_EVENT_QUIT:
-				running = false;
+				mState = State::Closed;
 				break;
 
 			case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-				running = (event.window.windowID == SDL_GetWindowID(mpWindow));
+				if (event.window.windowID == SDL_GetWindowID(mpWindow))
+					mState = State::Closed;
 				break;
 
 			//case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
@@ -129,7 +129,31 @@ namespace ark
 		switch (event.scancode)
 		{
 		case SDL_SCANCODE_SPACE:
-			mpBall->Launch();
+			switch (mState)
+			{
+			case State::Paused:
+				mState = State::Started;
+				break;
+
+			case State::PausedDefeat:
+			case State::PausedVictory:
+				RestartLevel();
+				mpBall->Launch();
+				mState = State::Started;
+				break;
+
+			case State::Loaded:
+				mpBall->Launch();
+				mState = State::Started;
+				break;
+
+			case State::Started:
+				if (!mpBall->IsLaunched())
+					mpBall->Launch();
+				else
+					mState = State::Paused;
+				break;
+			}
 			break;
 
 		case SDL_SCANCODE_LEFT:
@@ -138,6 +162,10 @@ namespace ark
 
 		case SDL_SCANCODE_RIGHT:
 			mpPaddle->MoveRight();
+			break;
+
+		case SDL_SCANCODE_ESCAPE:
+			mState = State::Closed;
 			break;
 
 		default:
@@ -150,9 +178,9 @@ namespace ark
 		mpPaddle->Update(dt);
 
 		// if mpBall not launched, keep it above mpPaddle
-		if (!mpBall->mLaunched)
+		if (!mpBall->IsLaunched())
 		{
-			mpBall->SetPosition(float(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2), float(mpPaddle->GetRect().y - mpBall->mRadius * 2.0f));
+			mpBall->SetPosition(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->mRadius * 2.0f);
 		}
 		else
 		{
@@ -185,7 +213,7 @@ namespace ark
 			if (mLives <= 0)
 			{
 				ARK_INFO("You lost !");
-				running = false; // game over
+				mState = State::PausedDefeat;
 			}
 			ResetBall();
 		}
@@ -230,8 +258,9 @@ namespace ark
 		if (!anyLeft)
 		{
 			ARK_INFO("You won !");
-			running = false; // win -> stop loop
+			mState = State::PausedVictory;
 		}
+	}
 
 	void Game::UpdateUI()
 	{
@@ -240,21 +269,23 @@ namespace ark
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 
-		ImGui::SetNextWindowPos(ImVec2(10, 10)); // Top-left corner of the screen
+		switch (mState)
+		{
+		case State::Loaded:
+			return ShowCenteredMultiText(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), "Arkanoid", "Press Space to continue the game or Esc to quit.");
 
-		const ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration |
-			ImGuiWindowFlags_NoInputs |
-			ImGuiWindowFlags_AlwaysAutoResize |
-			ImGuiWindowFlags_NoBackground |
-			ImGuiWindowFlags_NoSavedSettings |
-			ImGuiWindowFlags_NoFocusOnAppearing |
-			ImGuiWindowFlags_NoNav;
+		case State::Started:
+			return ShowText(glm::vec2(10.0f, 10.0f), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), fmt::format("Score: {}   Lives: {}", mScore, mLives).c_str());
 
-		ImGui::Begin("Overlay", nullptr, flags);
-		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
-		ImGui::TextUnformatted(fmt::format("Score: {}   Lives: {}", score, lives).c_str());
-		ImGui::PopStyleColor();
-		ImGui::End();
+		case State::Paused:
+			return ShowCenteredMultiText(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), "Game Paused", "Press Space to continue the game or Esc to quit.");
+
+		case State::PausedVictory:
+			return ShowCenteredMultiText(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), "You Won!", "Press Space to restart the game or Esc to quit.");
+
+		case State::PausedDefeat:
+			return ShowCenteredMultiText(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), "You Lost!", "Press Space to restart the game or Esc to quit.");
+		}
 	}
 
 	void Game::Render()
@@ -277,5 +308,76 @@ namespace ark
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		mpRenderer->EndFrame();
+	}
+
+	void Game::ShowText(const glm::vec2& pos, const glm::vec4& color, const char* const pText)
+	{
+		static const ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoDecoration
+			| ImGuiWindowFlags_NoBackground
+			| ImGuiWindowFlags_NoSavedSettings
+			| ImGuiWindowFlags_NoInputs
+			| ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoFocusOnAppearing
+			| ImGuiWindowFlags_NoNav;
+
+		ImGui::SetNextWindowPos(ImVec2(pos.x, pos.y)); // Top-left corner of the screen
+		ImGui::Begin("Overlay", nullptr, windowFlags);
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, color.a));
+		ImGui::TextUnformatted(pText);
+		ImGui::SetWindowFontScale(1.0f);
+		ImGui::PopStyleColor();
+		ImGui::End();
+	}
+
+	void Game::ShowCenteredMultiText(const glm::vec4& color, const char* const pText1, const char* const pText2)
+	{
+		static const float kBigFontScale = 2.0f;
+		static const float kSmallFontScale = 1.0f;
+		static const ImGuiWindowFlags kWindowFlags = ImGuiWindowFlags_NoDecoration
+			| ImGuiWindowFlags_NoBackground
+			| ImGuiWindowFlags_NoSavedSettings
+			| ImGuiWindowFlags_NoInputs
+			| ImGuiWindowFlags_NoMove
+			| ImGuiWindowFlags_NoFocusOnAppearing
+			| ImGuiWindowFlags_NoNav;
+
+		ImGui::Begin("Overlay", nullptr, kWindowFlags);
+
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(color.r, color.g, color.b, color.a));
+
+		// Get window size
+		ImGuiIO& io = ImGui::GetIO();
+		const ImVec2 windowSize = io.DisplaySize;
+
+		ImGui::SetWindowPos(ImVec2(0, 0));
+		ImGui::SetWindowSize(windowSize);
+
+		// Calculate text sizes
+		ImGui::SetWindowFontScale(kBigFontScale);
+		const ImVec2 textSize1 = ImGui::CalcTextSize(pText1);
+
+		ImGui::SetWindowFontScale(kSmallFontScale);
+		const ImVec2 textSize2 = ImGui::CalcTextSize(pText2);
+
+		// Calculate positions (centered)
+		const float totalHeight = textSize1.y + 10.0f + textSize2.y; // 10px spacing
+		const float startY = (windowSize.y - totalHeight) * 0.5f;
+
+		// Center the first line
+		ImGui::SetCursorPos(ImVec2((windowSize.x - textSize1.x) * 0.5f, startY));
+		ImGui::SetWindowFontScale(kBigFontScale);
+		ImGui::TextUnformatted(pText1);
+
+		// Center the second line
+		ImGui::SetWindowFontScale(kSmallFontScale);
+		ImGui::SetCursorPos(ImVec2((windowSize.x - textSize2.x) * 0.5f, startY + textSize1.y + 10.0f));
+		ImGui::TextUnformatted(pText2);
+
+		// Reset font scale
+		ImGui::SetWindowFontScale(1.0f);
+
+		ImGui::PopStyleColor();
+
+		ImGui::End();
 	}
 }

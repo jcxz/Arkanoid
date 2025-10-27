@@ -14,14 +14,17 @@ namespace ark
 			: mPos(x, y), mRadius(r)
 		{ }
 
-		void Launch();
-		void Update(const float dt);
-		void Render(Renderer& renderer);
 		Rect GetRect() const { return Rect(mPos.x - mRadius, mPos.y - mRadius, 2.0f * mRadius, 2.0f * mRadius); }
 		void SetPosition(const float x, const float y) { mPos = glm::vec2(x, y); }
 		void SetVelocity(const float x, const float y) { mVelocity = glm::vec2(x, y); }
 		void ReflectX() { mVelocity.x = -mVelocity.x; }
 		void ReflectY() { mVelocity.y = -mVelocity.y; }
+		bool IsLaunched() const { return mLaunched; }
+
+		void Launch();
+		void Reset(const float x, const float y);
+		void Update(const float dt);
+		void Render(Renderer& renderer);
 
 	public:
 		glm::vec2 mPos;

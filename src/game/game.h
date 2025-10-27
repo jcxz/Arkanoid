@@ -13,6 +13,16 @@ namespace ark
 {
 	class Game
 	{
+		enum class State
+		{
+			Loaded,            //! the game was just loaded. Show start instructions.
+			Started,           //! the game is running
+			Paused,            //! the game was paused. Show instructions on how to continue.
+			PausedVictory,     //! the game was paused, because player won. Inform player and show restart instructions.
+			PausedDefeat,      //! the game was paused, because player lost. Inform player and show restart instructions.
+			Closed             //! quit game requested
+		};
+
 	public:
 		bool Init();
 		void Run();
@@ -26,6 +36,8 @@ namespace ark
 		void Render();
 		void ResetBall();
 		void RestartLevel();
+		void ShowText(const glm::vec2& pos, const glm::vec4& color, const char* const pText);
+		void ShowCenteredMultiText(const glm::vec4& color, const char* const pText1, const char* const pText2);
 
 	private:
 		SDL_Window* mpWindow = nullptr;
@@ -37,5 +49,6 @@ namespace ark
 		int mWindowH = 600;
 		int mLives = 3;
 		int mScore = 0;
+		State mState = State::Loaded;
 	};
 }
