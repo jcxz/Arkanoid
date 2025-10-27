@@ -21,21 +21,21 @@ namespace ark
 	private:
 		void HandleInput();
 		void HandleKeyboardEvent(const SDL_KeyboardEvent& event);
-		void Update(float dt);
+		void UpdateGame(const float dt);
+		void UpdateUI();
 		void Render();
-		void resetBall();
-		void spawnLevel();
+		void ResetBall();
+		void RestartLevel();
 
 	private:
 		SDL_Window* mpWindow = nullptr;
 		std::unique_ptr<Renderer> mpRenderer;
-		std::unique_ptr<Paddle> paddle;
-		std::unique_ptr<Ball> ball;
-		std::vector<std::unique_ptr<Brick>> bricks;
+		std::unique_ptr<Paddle> mpPaddle;
+		std::unique_ptr<Ball> mpBall;
+		std::vector<std::unique_ptr<Brick>> mBricks;
 		int mWindowW = 800;
 		int mWindowH = 600;
-		int lives = 3;
-		int score = 0;
-		bool running = false;
+		int mLives = 3;
+		int mScore = 0;
 	};
 }

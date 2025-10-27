@@ -10,19 +10,24 @@ namespace ark
 	class Ball
 	{
 	public:
-		Ball(float x, float y, float r);
-		void launch();
-		void update(float dt);
-		void render(Renderer& renderer);
-		void setPosition(float x, float y);
-		Rect getRect() const { return { x - r, y - r, 2 * r, 2 * r }; }
-		void reflectX();
-		void reflectY();
+		Ball(const float x, const float y, const float r)
+			: mPos(x, y), mRadius(r)
+		{ }
+
+		void Launch();
+		void Update(const float dt);
+		void Render(Renderer& renderer);
+		Rect GetRect() const { return Rect(mPos.x - mRadius, mPos.y - mRadius, 2.0f * mRadius, 2.0f * mRadius); }
+		void SetPosition(const float x, const float y) { mPos = glm::vec2(x, y); }
+		void SetVelocity(const float x, const float y) { mVelocity = glm::vec2(x, y); }
+		void ReflectX() { mVelocity.x = -mVelocity.x; }
+		void ReflectY() { mVelocity.y = -mVelocity.y; }
 
 	public:
-		float x, y, r;
-		float vx = 0, vy = 0; // velocity
-		float speed = 300.0f;
-		bool launched = false;
+		glm::vec2 mPos;
+		float mRadius;
+		glm::vec2 mVelocity = glm::vec2(0.0f, 0.0f);
+		float mSpeed = 300.0f;
+		bool mLaunched = false;
 	};
 }

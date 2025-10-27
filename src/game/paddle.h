@@ -11,13 +11,15 @@ namespace ark
 	{
 	public:
 		Paddle(int x, int y, int w, int h, int winW);
-		void handleInput(const bool* keystate, float dt);
-		void render(Renderer& renderer);
-		Rect getRect() const { return rect; }
+		Rect GetRect() const { return rect; }
+		void HandleInput(const bool* keystate);
+		void Update(const float dt);
+		void Render(Renderer& renderer);
 
 	private:
 		Rect rect;
 		int windowW;
-		int speed = 500;
+		float speed = 500.0f;
+		float direction = 0.0f;
 	};
 }

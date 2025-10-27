@@ -6,11 +6,6 @@
 #include "imgui_impl_opengl3.h"
 
 
-static bool rectsIntersect(const ark::Rect& a, const ark::Rect& b)
-{
-	return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
-}
-
 
 namespace ark
 {
@@ -36,10 +31,9 @@ namespace ark
 		mpRenderer.reset(Renderer::Create(mpWindow));
 		mpRenderer->ResizeViewport(mWindowW, mWindowH);
 		mpRenderer->SetBackgroundColor(glm::vec4(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f));
-		paddle = std::make_unique<Paddle>(mWindowW / 2 - 60, mWindowH - 40, 120, 16, mWindowW);
-		ball = std::make_unique<Ball>(mWindowW / 2.0f, mWindowH - 60.0f, 8.0f);
-		spawnLevel();
-		resetBall();
+		mpPaddle = std::make_unique<Paddle>(mWindowW / 2 - 60, mWindowH - 40, 120, 16, mWindowW);
+		mpBall = std::make_unique<Ball>(mWindowW / 2.0f, mWindowH - 60.0f, 8.0f);
+		RestartLevel();
 		running = true;
 		return true;
 	}
@@ -54,6 +48,7 @@ namespace ark
 			last = now;
 			HandleInput();
 			Update(dt);
+			UpdateUI();
 			Render();
 		}
 	}
@@ -64,30 +59,34 @@ namespace ark
 		SDL_DestroyWindow(mpWindow);
 	}
 
-	void Game::spawnLevel()
+	void Game::RestartLevel()
 	{
-		bricks.clear();
+		mBricks.clear();
 		int rows = 5;
 		int cols = 10;
 		int bw = 64;
 		int bh = 24;
 		int startX = (mWindowW - cols * bw) / 2;
 		int startY = 60;
-		for (int r = 0; r < rows; r++) {
-			for (int c = 0; c < cols; c++) {
-				BrickColor col = (r % 3 == 0 ? BrickColor::Red : (r % 3 == 1 ? BrickColor::Green : BrickColor::Blue));
+		for (int r = 0; r < rows; ++r)
+		{
+			for (int c = 0; c < cols; ++c)
+			{
+				Brick::Color col = (r % 3 == 0 ? Brick::Color::Red : (r % 3 == 1 ? Brick::Color::Green : Brick::Color::Blue));
 				int pts = (r % 3 == 0 ? 100 : (r % 3 == 1 ? 50 : 30));
-				bricks.emplace_back(std::make_unique<Brick>(startX + c * bw, startY + r * bh, bw - 4, bh - 4, col, pts));
+				mBricks.emplace_back(std::make_unique<Brick>(startX + c * bw, startY + r * bh, bw - 4, bh - 4, col, pts));
 			}
 		}
+
+		ResetBall();
 	}
 
-	void Game::resetBall()
+	void Game::ResetBall()
 	{
-		ball->launched = false;
-		ball->speed = 300.0f;
-		ball->setPosition(float(paddle->getRect().x + paddle->getRect().w / 2), float(paddle->getRect().y - 12));
-		ball->vx = 0; ball->vy = 0;
+		mpBall->mLaunched = false;
+		mpBall->mSpeed = 300.0f;
+		mpBall->SetPosition(float(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2), float(mpPaddle->GetRect().y - 12));
+		mpBall->SetVelocity(0, 0);
 	}
 
 	void Game::HandleInput()
@@ -125,7 +124,7 @@ namespace ark
 		switch (event.scancode)
 		{
 		case SDL_SCANCODE_SPACE:
-			ball->launch();
+			mpBall->Launch();
 			break;
 
 		case SDL_SCANCODE_LEFT:
@@ -139,82 +138,85 @@ namespace ark
 		}
 	}
 
-	void Game::Update(float dt)
+	void Game::UpdateGame(const float dt)
 	{
-		const bool* keystate = SDL_GetKeyboardState(NULL);
-		paddle->handleInput(keystate, dt);
-		// if ball not launched, keep it above paddle
-		if (!ball->launched)
+		const bool* keystate = SDL_GetKeyboardState(nullptr);
+		mpPaddle->HandleInput(keystate);
+
+		mpPaddle->Update(dt);
+
+		// if mpBall not launched, keep it above mpPaddle
+		if (!mpBall->mLaunched)
 		{
-			ball->setPosition(float(paddle->getRect().x + paddle->getRect().w / 2), float(paddle->getRect().y - 12));
+			mpBall->SetPosition(float(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2), float(mpPaddle->GetRect().y - mpBall->mRadius * 2.0f));
 		}
 		else
 		{
-			ball->update(dt);
+			mpBall->Update(dt);
 		}
 
 		// wall collisions
-		if (ball->x - ball->r < 0)
+		if (mpBall->mPos.x - mpBall->mRadius < 0)
 		{
-			ball->x = ball->r;
-			ball->reflectX();
+			mpBall->mPos.x = mpBall->mRadius;
+			mpBall->ReflectX();
 		}
 
-		if (ball->x + ball->r > mWindowW)
+		if (mpBall->mPos.x + mpBall->mRadius > mWindowW)
 		{
-			ball->x = mWindowW - ball->r;
-			ball->reflectX();
+			mpBall->mPos.x = mWindowW - mpBall->mRadius;
+			mpBall->ReflectX();
 		}
 
-		if (ball->y - ball->r < 0)
+		if (mpBall->mPos.y - mpBall->mRadius < 0)
 		{
-			ball->y = ball->r;
-			ball->reflectY();
+			mpBall->mPos.y = mpBall->mRadius;
+			mpBall->ReflectY();
 		}
 
 		// bottom (lose life)
-		if (ball->y - ball->r > mWindowH)
+		if (mpBall->mPos.y - mpBall->mRadius > mWindowH)
 		{
-			lives -= 1;
-			if (lives <= 0)
+			mLives -= 1;
+			if (mLives <= 0)
 			{
 				ARK_INFO("You lost !");
 				running = false; // game over
 			}
-			resetBall();
+			ResetBall();
 		}
 
-		// paddle collision (basic)
-		Rect brect = ball->getRect();
-		Rect prect = paddle->getRect();
-		if (rectsIntersect(brect, prect) && ball->vy > 0)
+		// mpPaddle collision (basic)
+		const Rect brect = mpBall->GetRect();
+		const Rect prect = mpPaddle->GetRect();
+		if (brect.Intersects(prect) && mpBall->mVelocity.y > 0)
 		{
 			// reflect and tweak angle depending on hit position
 			float hitPos = ((brect.x + brect.w / 2.0f) - (prect.x + prect.w / 2.0f)) / (prect.w / 2.0f);
 			float angle = hitPos * (3.14f / 3.0f); // +/- 60 degrees
-			float s = ball->speed;
-			ball->vx = s * sinf(angle);
-			ball->vy = -fabsf(s * cosf(angle));
+			float s = mpBall->mSpeed;
+			mpBall->mVelocity.x = s * sinf(angle);
+			mpBall->mVelocity.y = -fabsf(s * cosf(angle));
 		}
 
-		// bricks collisions
-		for (auto& b : bricks)
+		// mBricks collisions
+		for (auto& b : mBricks)
 		{
-			if (!b->destroyed && rectsIntersect(brect, b->getRect()))
+			if (!b->IsDestroyed() && brect.Intersects(b->GetRect()))
 			{
-				b->destroyed = true;
-				score += b->points;
-				// reflect ball - simple approach: reverse Y
-				ball->reflectY();
+				b->SetDestroyed();
+				mScore += b->GetPoints();
+				// reflect mpBall - simple approach: reverse Y
+				mpBall->ReflectY();
 				break; // only one brick per frame
 			}
 		}
 
 		// win condition
 		bool anyLeft = false;
-		for (auto& b : bricks)
+		for (auto& b : mBricks)
 		{
-			if (!b->destroyed)
+			if (!b->IsDestroyed())
 			{
 				anyLeft = true;
 				break;
@@ -227,6 +229,8 @@ namespace ark
 			running = false; // win -> stop loop
 		}
 
+	void Game::UpdateUI()
+	{
 		// Start the Dear ImGui frame and generate some UI
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
@@ -252,20 +256,18 @@ namespace ark
 	void Game::Render()
 	{
 		ImGui::Render();
-		//ImGuiIO& io = ImGui::GetIO();
-		//SDL_SetRenderScale(renderer, io.DisplayFramebufferScale.x, io.DisplayFramebufferScale.y);
 
 		mpRenderer->BeginFrame();
 
-		// draw bricks
-		for (auto& b : bricks)
-			b->render(*mpRenderer);
+		// draw mBricks
+		for (auto& b : mBricks)
+			b->Render(*mpRenderer);
 
-		// paddle
-		paddle->render(*mpRenderer);
+		// mpPaddle
+		mpPaddle->Render(*mpRenderer);
 
-		// ball
-		ball->render(*mpRenderer);
+		// mpBall
+		mpBall->Render(*mpRenderer);
 
 		// HUD: score and lives
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

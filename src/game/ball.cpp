@@ -4,32 +4,32 @@
 
 namespace ark
 {
-	Ball::Ball(float x_, float y_, float r_)
-		: x(x_), y(y_), r(r_)
-	{ }
-
-	void Ball::launch()
+	void Ball::Launch()
 	{
-		if (launched) return;
-		launched = true;
-		// initial direction up-right
-		vx = speed * 0.7071f;
-		vy = -speed * 0.7071f;
+		if (!mLaunched)
+		{
+			// initial direction up-right
+			//vx = speed * 0.7071f;
+			//vy = -speed * 0.7071f;
+
+			mVelocity.x = 0;
+			mVelocity.y = -mSpeed;
+
+			mLaunched = true;
+		}
 	}
 
-	void Ball::update(float dt)
+	void Ball::Update(const float dt)
 	{
-		if (!launched) return;
-		x += vx * dt;
-		y += vy * dt;
+		if (mLaunched)
+		{
+			mPos.x += mVelocity.x * dt;
+			mPos.y += mVelocity.y * dt;
+		}
 	}
 
-	void Ball::render(Renderer& renderer)
+	void Ball::Render(Renderer& renderer)
 	{
-		renderer.DrawCircle(glm::vec2(x, y), r, glm::vec4(0.75f, 0.75f, 0.0f, 1.0f));
+		renderer.DrawCircle(mPos, mRadius, glm::vec4(0.75f, 0.75f, 0.0f, 1.0f));
 	}
-
-	void Ball::setPosition(float nx, float ny) { x = nx; y = ny; }
-	void Ball::reflectX() { vx = -vx; }
-	void Ball::reflectY() { vy = -vy; }
 }

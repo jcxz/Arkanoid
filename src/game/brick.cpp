@@ -4,23 +4,16 @@
 
 namespace ark
 {
-	Brick::Brick(int x, int y, int w, int h, BrickColor c, int points_)
-		: points(points_)
-		, color(c)
+	void Brick::Render(Renderer& renderer)
 	{
-		rect = { float(x), float(y), float(w), float(h) };
-	}
-
-	void Brick::render(Renderer& renderer)
-	{
-		if (destroyed)
+		if (mDestroyed)
 			return;
 
-		switch (color)
+		switch (mColor)
 		{
-		case BrickColor::Red:   renderer.DrawRect(rect, glm::vec4(200.0f / 255.0f, 50.0f / 255.0f, 50.0f / 255.0f, 1.0f)); break;
-		case BrickColor::Green: renderer.DrawRect(rect, glm::vec4(50.0f / 255.0f, 200.0f / 255.0f, 50.0f / 255.0f, 1.0f)); break;
-		case BrickColor::Blue:  renderer.DrawRect(rect, glm::vec4(50.0f / 255.0f, 50.0f / 255.0f, 200.0f / 255.0f, 1.0f)); break;
+		case Color::Red:   renderer.DrawRect(mRect, glm::vec4(200.0f / 255.0f, 50.0f / 255.0f, 50.0f / 255.0f, 1.0f)); break;
+		case Color::Green: renderer.DrawRect(mRect, glm::vec4(50.0f / 255.0f, 200.0f / 255.0f, 50.0f / 255.0f, 1.0f)); break;
+		case Color::Blue:  renderer.DrawRect(mRect, glm::vec4(50.0f / 255.0f, 50.0f / 255.0f, 200.0f / 255.0f, 1.0f)); break;
 		}
 	}
 }
