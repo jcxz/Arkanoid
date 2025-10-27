@@ -6,6 +6,7 @@ CMakeUserPresets.json
 .vs/
 .DS_Store
 .idea
+imgui.ini
 *.aps
 *.db
 *.ilk
