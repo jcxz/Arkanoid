@@ -7,8 +7,8 @@ namespace ark
 	void Ball::Launch()
 	{
 		// initial direction up-right
-		//vx = speed * 0.7071f;
-		//vy = -speed * 0.7071f;
+		//mVelocity.x = mSpeed * 0.7071f;
+		//mVelocity.y = -mSpeed * 0.7071f;
 
 		mVelocity.x = 0;
 		mVelocity.y = -mSpeed;

@@ -27,7 +27,7 @@ namespace ark
 		bool IsDestroyed() const { return mDestroyed; }
 		void SetDestroyed() { mDestroyed = true; }
 		int GetPoints() const { return mPoints; }
-		Rect GetRect() const { return mRect; }
+		const Rect& GetRect() const { return mRect; }
 		void Render(Renderer& renderer);
 
 	private:
