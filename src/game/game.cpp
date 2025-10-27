@@ -78,10 +78,12 @@ namespace ark
 			}
 		}
 
-		mpPaddle->Reset(float(mWindowW / 2 - 60), float(mWindowH - 40));
-		ResetBall();
 		mLives = 3;
 		mScore = 0;
+		mBricksLeft = cols * rows;
+
+		mpPaddle->Reset(float(mWindowW / 2 - 60), float(mWindowH - 40));
+		ResetBall();
 	}
 
 	void Game::ResetBall()
@@ -239,6 +241,7 @@ namespace ark
 			if (!b->IsDestroyed() && brect.Intersects(b->GetRect()))
 			{
 				b->SetDestroyed();
+				--mBricksLeft;
 				mScore += b->GetPoints();
 				// reflect mpBall - simple approach: reverse Y
 				mpBall->ReflectY();
@@ -247,17 +250,7 @@ namespace ark
 		}
 
 		// win condition
-		bool anyLeft = false;
-		for (auto& b : mBricks)
-		{
-			if (!b->IsDestroyed())
-			{
-				anyLeft = true;
-				break;
-			}
-		}
-
-		if (!anyLeft)
+		if (mBricksLeft <= 0)
 		{
 			mState = State::PausedVictory;
 		}

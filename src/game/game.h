@@ -49,6 +49,7 @@ namespace ark
 		int mWindowH = 600;
 		int mLives = 3;
 		int mScore = 0;
+		int mBricksLeft = 0;
 		State mState = State::Loaded;
 	};
 }
