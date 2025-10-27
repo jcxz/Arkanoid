@@ -12,7 +12,7 @@ If you have installed all the prerequisites listed above just double click on `s
 
 #### Building Linux/macOS
 
-If you have conan and cmake installed, then just eun the following commands from terminal:
+If you have conan and cmake installed, then just run the following commands from terminal:
 
 ```sh
 ./setup.sh
