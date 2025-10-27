@@ -29,6 +29,7 @@ namespace ark
 		void Stop() { mDirection = 0.0f; }
 		void SetPositionX(const float x) { mRect.x = x; }
 		void SetPositionY(const float y) { mRect.y = y; }
+
 		void Reset(const float x, const float y);
 		void Update(const float dt);
 		void Render(Renderer& renderer);

@@ -24,10 +24,12 @@ namespace ark
 			, mPoints(points)
 		{ }
 
-		bool IsDestroyed() const { return mDestroyed; }
-		void SetDestroyed() { mDestroyed = true; }
-		int GetPoints() const { return mPoints; }
 		const Rect& GetRect() const { return mRect; }
+		int GetPoints() const { return mPoints; }
+		bool IsDestroyed() const { return mDestroyed; }
+
+		void SetDestroyed() { mDestroyed = true; }
+
 		void Render(Renderer& renderer);
 
 	private:
