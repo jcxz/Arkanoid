@@ -159,6 +159,8 @@ namespace ark
 			return nullptr;
 		}
 
+		SDL_GL_SetSwapInterval(1);
+
 		const GLenum glewStatus = glewInit();
 		if (glewStatus != GLEW_OK)
 		{
