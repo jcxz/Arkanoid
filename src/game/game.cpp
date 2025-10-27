@@ -88,7 +88,7 @@ namespace ark
 
 	void Game::ResetBall()
 	{
-		mpBall->Reset(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->GetRadius());
+		mpBall->Reset(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->mRadius);
 	}
 
 	void Game::HandleInput()
@@ -188,7 +188,7 @@ namespace ark
 		}
 		else
 		{
-			mpBall->SetPosition(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->GetRadius());
+			mpBall->SetPosition(mpPaddle->GetRect().x + mpPaddle->GetRect().w / 2.0f, mpPaddle->GetRect().y - mpBall->mRadius);
 		}
 
 		// ball/wall collisions
