@@ -74,7 +74,7 @@ set(ARKANOID_EXTERNAL_SOURCES
 	${CMAKE_BINARY_DIR}/external/imgui_impl_opengl3.cpp
 )
 
-add_executable(Arkanoid ${ARKANOID_HEADERS} ${ARKANOID_SOURCES} ${ARKANOID_EXTERNAL_HEADERS} ${ARKANOID_EXTERNAL_SOURCES}})
+add_executable(Arkanoid ${ARKANOID_HEADERS} ${ARKANOID_SOURCES} ${ARKANOID_EXTERNAL_HEADERS} ${ARKANOID_EXTERNAL_SOURCES})
 
 target_link_libraries(Arkanoid PRIVATE SDL3::SDL3-static spdlog::spdlog GLEW::GLEW imgui::imgui glm::glm)
 
